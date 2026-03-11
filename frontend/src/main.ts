@@ -104,8 +104,8 @@ class App {
       let currentProjectId = projectStore.getCurrentProjectId()
       if (!currentProjectId) {
         const projects = projectStore.getAll()
-        if (projects.length > 0) {
-          await projectStore.setCurrentProject(projects[0].id!)
+        if (projects.length > 0 && projects[0].id) {
+          await projectStore.setCurrentProject(projects[0].id)
           currentProjectId = projects[0].id
         }
       }
@@ -236,6 +236,9 @@ class App {
     }
     if (this.unsubscribePlanning) {
       this.unsubscribePlanning()
+    }
+    if (this.unsubscribeProjects) {
+      this.unsubscribeProjects()
     }
   }
 }

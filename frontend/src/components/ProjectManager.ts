@@ -98,7 +98,7 @@ export class ProjectManager {
       const option = document.createElement('option')
       option.value = project.id!.toString()
       option.textContent = project.name
-      this.projectDropdown.appendChild(option)
+      this.projectDropdown!.appendChild(option)
     })
 
     // Set current project

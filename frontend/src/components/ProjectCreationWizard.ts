@@ -6,7 +6,7 @@ import { projectStore } from '../stores/ProjectStore'
  * Dibutuhkan sebelum bisa menggunakan aplikasi
  */
 export class ProjectCreationWizard {
-  private wizardOverlay: HTMLElement
+  private wizardOverlay!: HTMLElement
 
   constructor() {
     this.createWizard()

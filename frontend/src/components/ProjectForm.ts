@@ -1,20 +1,19 @@
 import { validateProjectFormData } from '../utils/validators'
 import { projectStore } from '../stores/ProjectStore'
-import type { ProjectFormData } from '../types'
+import type { ProjectFormData, Project } from '../types'
 
 /**
  * ProjectForm Component
  * Modal form untuk create/edit projects
  */
 export class ProjectForm {
-  private modal: HTMLElement
-  private form: HTMLFormElement
-  private nameInput: HTMLInputElement
-  private descriptionInput: HTMLTextAreaElement
-  private startDateInput: HTMLInputElement
-  private endDateInput: HTMLInputElement
-  private submitButton: HTMLButtonElement
-  private cancelButton: HTMLButtonElement
+  private modal!: HTMLElement
+  private form!: HTMLFormElement
+  private nameInput!: HTMLInputElement
+  private descriptionInput!: HTMLTextAreaElement
+  private startDateInput!: HTMLInputElement
+  private endDateInput!: HTMLInputElement
+  private submitButton!: HTMLButtonElement
   private isEdit: boolean = false
   private editingId: number | null = null
 
@@ -48,7 +47,6 @@ export class ProjectForm {
 
     const buttons = this.form.querySelectorAll('button')
     this.submitButton = buttons[1] as HTMLButtonElement
-    this.cancelButton = buttons[0] as HTMLButtonElement
 
     this.form.addEventListener('submit', this.handleSubmit.bind(this))
   }
