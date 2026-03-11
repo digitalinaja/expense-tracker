@@ -12,6 +12,7 @@ export class ProjectStore {
   private listeners: Array<(state: { projects: Project[]; currentProjectId: number | null }) => void> = []
   private loading: boolean = false
   private error: string | null = null
+  private readonly STORAGE_KEY = 'last_selected_project_id'
 
   /**
    * Subscribe ke state changes
@@ -71,12 +72,47 @@ export class ProjectStore {
     try {
       this.projects = await projectService.getAll()
       this.loading = false
+
+      // Restore last selected project from localStorage
+      this.restoreLastProject()
+
       this.notify()
     } catch (error) {
       this.loading = false
       this.error = error instanceof Error ? error.message : 'Failed to load projects'
       this.notify()
       throw error
+    }
+  }
+
+  /**
+   * Simpan current project ID ke localStorage
+   */
+  private saveCurrentProject(projectId: number): void {
+    try {
+      localStorage.setItem(this.STORAGE_KEY, projectId.toString())
+    } catch (error) {
+      console.warn('Failed to save current project to localStorage:', error)
+    }
+  }
+
+  /**
+   * Restore last selected project dari localStorage
+   */
+  private restoreLastProject(): void {
+    try {
+      const savedProjectId = localStorage.getItem(this.STORAGE_KEY)
+      if (savedProjectId) {
+        const projectId = parseInt(savedProjectId)
+
+        // Validasi: pastikan project masih ada
+        const projectExists = this.projects.some(p => p.id === projectId)
+        if (projectExists) {
+          this.currentProjectId = projectId
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to restore last project from localStorage:', error)
     }
   }
 
@@ -107,6 +143,10 @@ export class ProjectStore {
       // Load project summary
       this.currentProjectSummary = await projectService.getSummary(projectId)
       this.loading = false
+
+      // Simpan ke localStorage untuk persistence
+      this.saveCurrentProject(projectId)
+
       this.notify()
     } catch (error) {
       this.loading = false
@@ -243,6 +283,14 @@ export class ProjectStore {
     this.currentProjectId = null
     this.currentProjectSummary = null
     this.error = null
+
+    // Clear localStorage
+    try {
+      localStorage.removeItem(this.STORAGE_KEY)
+    } catch (error) {
+      console.warn('Failed to clear localStorage:', error)
+    }
+
     this.notify()
   }
 }
