@@ -1,0 +1,16 @@
+{
+  "name": "expense-tracker-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for Expense Tracker - Cloudflare Pages",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "vite": "^5.0.8"
+  }
+}

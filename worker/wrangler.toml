@@ -1,0 +1,20 @@
+name = "expense-tracker-api"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+[env.development]
+vars = { ENVIRONMENT = "development" }
+
+[env.production]
+vars = { ENVIRONMENT = "production" }
+
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "expense-tracker-db"
+database_id = "77bae638-fe3f-412d-86d5-b258c7a10e1a" # Replace with actual D1 database ID after creation
+
+# KV Namespace binding (optional, for caching)
+[[kv_namespaces]]
+binding = "KV"
+id = "8fe58048e60e4e20b6472c56b2247c94" # Replace with actual KV namespace ID if needed

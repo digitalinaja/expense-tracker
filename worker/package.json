@@ -1,0 +1,22 @@
+{
+  "name": "expense-tracker-worker",
+  "version": "1.0.0",
+  "description": "Worker API for Expense Tracker - Cloudflare Workers",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "d1:create": "wrangler d1 create expense-tracker-db",
+    "d1:execute": "wrangler d1 execute expense-tracker-db --file=../d1/schema.sql",
+    "d1:migrate": "wrangler d1 execute expense-tracker-db --command='SELECT * FROM expenses'",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20231218.0",
+    "typescript": "^5.3.3",
+    "wrangler": "^3.0.0"
+  },
+  "dependencies": {
+    "hono": "^3.11.0"
+  }
+}

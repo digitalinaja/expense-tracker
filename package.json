@@ -1,0 +1,39 @@
+{
+  "name": "cloudflare-expense-tracker",
+  "version": "1.0.0",
+  "description": "Expense Tracker application with Cloudflare ecosystem",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install && cd frontend && npm install && cd ../worker && npm install",
+    "dev:worker": "cd worker && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev": "concurrently \"npm run dev:worker\" \"npm run dev:frontend\" --kill-others",
+    "build:frontend": "cd frontend && npm run build",
+    "build:worker": "cd worker && npm run build",
+    "build": "npm run build:worker && npm run build:frontend",
+    "deploy:worker": "cd worker && npm run deploy",
+    "deploy:frontend": "cd frontend && npx wrangler pages deploy dist",
+    "deploy": "npm run deploy:worker && npm run deploy:frontend",
+    "d1:create": "wrangler d1 create expense-tracker-db",
+    "d1:migrate:local": "wrangler d1 execute expense-tracker-db --file=./d1/schema.sql --local",
+    "d1:migrate:remote": "wrangler d1 execute expense-tracker-db --file=./d1/schema.sql --remote",
+    "d1:migrate": "npm run d1:migrate:local && npm run d1:migrate:remote",
+    "d1:query": "wrangler d1 execute expense-tracker-db --command",
+    "kv:create": "wrangler kv:namespace create \"EXPENSE_TRACKER_CACHE\"",
+    "type-check": "cd frontend && npm run type-check && cd ../worker && npm run type-check",
+    "clean": "rm -rf frontend/dist frontend/node_modules worker/dist worker/node_modules node_modules"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": [
+    "expense-tracker",
+    "cloudflare",
+    "workers",
+    "d1",
+    "typescript",
+    "vite"
+  ],
+  "author": "",
+  "license": "MIT"
+}
