@@ -14,10 +14,12 @@ export class ExpenseService {
 
   /**
    * Get all expenses
+   * Can optionally filter by project_id
    */
-  async getAll(): Promise<Expense[]> {
+  async getAll(projectId?: number): Promise<Expense[]> {
     try {
-      const response = await fetch(this.baseUrl)
+      const url = projectId ? `${this.baseUrl}?project_id=${projectId}` : this.baseUrl
+      const response = await fetch(url)
       const result: ApiResponse<Expense[]> = await response.json()
 
       if (result.success && result.data) {

@@ -1,6 +1,7 @@
 import { getTodayDate } from '../utils/formatters'
 import { validateExpenseFormData } from '../utils/validators'
 import { planningStore } from '../stores/PlanningStore'
+import { projectStore } from '../stores/ProjectStore'
 
 /**
  * Planning Form Component
@@ -31,6 +32,13 @@ export class PlanningForm {
   private async handleSubmit(event: Event): Promise<void> {
     event.preventDefault()
 
+    // Get current project
+    const currentProjectId = projectStore.getCurrentProjectId()
+    if (!currentProjectId) {
+      this.showError('Tidak ada project yang dipilih. Silakan pilih project terlebih dahulu.')
+      return
+    }
+
     const name = this.nameInput.value.trim()
     const amount = parseFloat(this.amountInput.value)
     const date = this.dateInput.value
@@ -50,11 +58,12 @@ export class PlanningForm {
     this.setLoading(true)
 
     try {
-      // Add planning through store
+      // Add planning through store with current project_id
       await planningStore.add({
         name,
         amount,
-        date
+        date,
+        project_id: currentProjectId
       })
 
       // Reset form

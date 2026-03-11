@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { PlanningQueries } from '../db/queries'
-import { validatePlanning } from '../middleware/validation'
+import { validatePlanningWithProject } from '../middleware/validation'
 
 type Env = {
   DB: D1Database
@@ -9,11 +9,14 @@ type Env = {
 
 export const planningRouter = new Hono<{ Bindings: Env }>()
 
-// GET /api/planning - Get all planning
+// GET /api/planning - Get all planning (optionally filtered by project)
 planningRouter.get('/', async (c) => {
   try {
+    const projectIdParam = c.req.query('project_id')
+    const projectId = projectIdParam ? parseInt(projectIdParam) : undefined
+
     const planningQueries = new PlanningQueries(c.env.DB)
-    const planning = await planningQueries.getAll()
+    const planning = await planningQueries.getAll(projectId)
     return c.json({
       success: true,
       data: planning
@@ -61,13 +64,23 @@ planningRouter.get('/:id', async (c) => {
   }
 })
 
-// POST /api/planning - Create new planning
-planningRouter.post('/', validatePlanning, async (c) => {
+// POST /api/planning - Create new planning (REQUIRES project_id)
+planningRouter.post('/', validatePlanningWithProject, async (c) => {
   try {
     const body = await c.req.json()
+
+    // Validate project_id is present and valid
+    if (!body.project_id || typeof body.project_id !== 'number') {
+      return c.json({
+        success: false,
+        error: 'project_id is required and must be a number'
+      }, 400)
+    }
+
     const planningQueries = new PlanningQueries(c.env.DB)
 
     const id = await planningQueries.create({
+      project_id: body.project_id,
       name: body.name,
       amount: body.amount,
       date: body.date
@@ -122,7 +135,7 @@ planningRouter.delete('/:id', async (c) => {
 })
 
 // PUT /api/planning/:id - Update planning
-planningRouter.put('/:id', validatePlanning, async (c) => {
+planningRouter.put('/:id', validatePlanningWithProject, async (c) => {
   try {
     const id = parseInt(c.req.param('id'))
     if (isNaN(id)) {
@@ -136,6 +149,7 @@ planningRouter.put('/:id', validatePlanning, async (c) => {
     const planningQueries = new PlanningQueries(c.env.DB)
 
     const updated = await planningQueries.update(id, {
+      project_id: body.project_id,
       name: body.name,
       amount: body.amount,
       date: body.date

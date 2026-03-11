@@ -9,11 +9,14 @@ type Env = {
 
 export const expensesRouter = new Hono<{ Bindings: Env }>()
 
-// GET /api/expenses - Get all expenses
+// GET /api/expenses - Get all expenses (optionally filtered by project)
 expensesRouter.get('/', async (c) => {
   try {
+    const projectIdParam = c.req.query('project_id')
+    const projectId = projectIdParam ? parseInt(projectIdParam) : undefined
+
     const expenseQueries = new ExpenseQueries(c.env.DB)
-    const expenses = await expenseQueries.getAll()
+    const expenses = await expenseQueries.getAll(projectId)
     return c.json({
       success: true,
       data: expenses

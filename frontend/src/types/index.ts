@@ -1,5 +1,15 @@
 // TypeScript type definitions for Expense Tracker
 
+export interface Project {
+  id?: number
+  name: string
+  description?: string
+  start_date?: string
+  end_date?: string
+  created_at?: string
+  updated_at?: string
+}
+
 export interface Expense {
   id?: number
   name: string
@@ -7,15 +17,18 @@ export interface Expense {
   date: string
   planning_id?: number | null
   planning_name?: string  // For display purposes from JOIN
+  project_name?: string  // For display purposes from planning JOIN
   created_at?: string
   updated_at?: string
 }
 
 export interface Planning {
   id?: number
+  project_id: number  // REQUIRED
   name: string
   amount: number
   date: string
+  project_name?: string  // For display purposes from JOIN
   created_at?: string
   updated_at?: string
 }
@@ -41,9 +54,26 @@ export interface ExpenseFormData {
 }
 
 export interface PlanningFormData {
+  project_id: number  // REQUIRED
   name: string
   amount: number
   date: string
+}
+
+export interface ProjectFormData {
+  name: string
+  description?: string
+  start_date?: string
+  end_date?: string
+}
+
+export interface ProjectSummary {
+  project: Project
+  total_planning: number
+  total_expenses: number
+  remaining: number
+  planning_count: number
+  expense_count: number
 }
 
 export interface CategoryReport {

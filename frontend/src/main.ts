@@ -6,8 +6,17 @@ import { Summary } from './components/Summary'
 import { ReportSection } from './components/ReportSection'
 import { TabManager } from './components/TabManager'
 import { NavigationManager } from './components/NavigationManager'
+import { projectForm } from './components/ProjectForm'
+import { projectCreationWizard } from './components/ProjectCreationWizard'
 import { expenseStore } from './stores/ExpenseStore'
 import { planningStore } from './stores/PlanningStore'
+import { projectStore } from './stores/ProjectStore'
+
+// Import ProjectManager for side-effect (auto-initialization)
+import './components/ProjectManager'
+
+// Make projectForm globally available for HTML onclick handlers
+;(window as any).projectForm = projectForm
 
 /**
  * Main application entry point
@@ -21,8 +30,13 @@ class App {
   private planningTabManager: TabManager
   private unsubscribeExpenses: (() => void) | null = null
   private unsubscribePlanning: (() => void) | null = null
+  private unsubscribeProjects: (() => void) | null = null
+  private isInitialized: boolean = false
 
   constructor() {
+    // Initialize project manager (singleton instance)
+    // ProjectManager component auto-initializes itself
+
     // Initialize components
     new ExpenseForm()
     new PlanningForm()
@@ -46,10 +60,60 @@ class App {
       // Show loading state
       this.showLoading()
 
-      // Load initial data from API
+      // STEP 1: Load projects first
+      await projectStore.load()
+
+      // STEP 2: Check if user has any projects
+      if (!projectStore.hasProjects()) {
+        // First-time user - show wizard
+        this.hideLoading()
+        projectCreationWizard.show()
+
+        // Subscribe to project store to detect when first project is created
+        this.unsubscribeProjects = projectStore.subscribe(async () => {
+          if (projectStore.hasProjects() && !this.isInitialized) {
+            // First project created, initialize the app
+            this.isInitialized = true
+            projectCreationWizard.hide()
+            await this.initializeWithProject()
+          }
+        })
+
+        return
+      }
+
+      // STEP 3: Has projects - set current project and initialize
+      await this.initializeWithProject()
+
+    } catch (error) {
+      console.error('Failed to initialize application:', error)
+      this.showInitializationError()
+      this.hideLoading()
+    }
+  }
+
+  /**
+   * Initialize application with a project context
+   */
+  private async initializeWithProject(): Promise<void> {
+    try {
+      // Show loading state
+      this.showLoading()
+
+      // Get current project or set first project as current
+      let currentProjectId = projectStore.getCurrentProjectId()
+      if (!currentProjectId) {
+        const projects = projectStore.getAll()
+        if (projects.length > 0) {
+          await projectStore.setCurrentProject(projects[0].id!)
+          currentProjectId = projects[0].id
+        }
+      }
+
+      // Load planning and expenses for current project
       await Promise.all([
-        expenseStore.load(),
-        planningStore.load()
+        planningStore.load(currentProjectId!),
+        expenseStore.load(currentProjectId!)
       ])
 
       // Initialize components
@@ -76,10 +140,31 @@ class App {
         }
       })
 
+      this.unsubscribeProjects = projectStore.subscribe(async (state) => {
+        // Reload data when project changes
+        if (state.currentProjectId !== currentProjectId) {
+          currentProjectId = state.currentProjectId
+          this.showLoading()
+
+          try {
+            await Promise.all([
+              planningStore.load(currentProjectId!),
+              expenseStore.load(currentProjectId!)
+            ])
+            this.hideLoading()
+          } catch (error) {
+            console.error('Failed to reload data for project:', error)
+            this.showError('Gagal memuat data project')
+            this.hideLoading()
+          }
+        }
+      })
+
       console.log('Application initialized successfully')
     } catch (error) {
-      console.error('Failed to initialize application:', error)
-      this.showInitializationError()
+      console.error('Failed to initialize with project:', error)
+      this.showError('Gagal menginisialisasi aplikasi')
+      this.hideLoading()
     }
   }
 

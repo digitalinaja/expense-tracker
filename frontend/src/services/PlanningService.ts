@@ -14,10 +14,12 @@ export class PlanningService {
 
   /**
    * Get all planning items
+   * Can optionally filter by project_id
    */
-  async getAll(): Promise<Planning[]> {
+  async getAll(projectId?: number): Promise<Planning[]> {
     try {
-      const response = await fetch(this.baseUrl)
+      const url = projectId ? `${this.baseUrl}?project_id=${projectId}` : this.baseUrl
+      const response = await fetch(url)
       const result: ApiResponse<Planning[]> = await response.json()
 
       if (result.success && result.data) {

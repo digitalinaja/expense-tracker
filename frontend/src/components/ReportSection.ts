@@ -1,5 +1,6 @@
 import { formatCurrency } from '../utils/formatters'
 import { reportStore } from '../stores/ReportStore'
+import { projectStore } from '../stores/ProjectStore'
 import type { CategoryReport } from '../types'
 
 /**
@@ -9,6 +10,7 @@ import type { CategoryReport } from '../types'
 export class ReportSection {
   private container: HTMLElement | null = null
   private unsubscribe: (() => void) | null = null
+  private unsubscribeProject: (() => void) | null = null
 
   constructor() {
     // Find or create report section container
@@ -53,16 +55,23 @@ export class ReportSection {
       }
     })
 
+    // Subscribe to project store changes to reload report when project changes
+    this.unsubscribeProject = projectStore.subscribe(async () => {
+      // Reload report when project changes
+      await this.loadReport()
+    })
+
     // Initial load
     this.loadReport()
   }
 
   /**
-   * Load report data
+   * Load report data for current project
    */
   async loadReport(): Promise<void> {
     try {
-      await reportStore.load()
+      const currentProjectId = projectStore.getCurrentProjectId()
+      await reportStore.load(currentProjectId ?? undefined)
     } catch (error) {
       console.error('Failed to load report:', error)
       this.renderError()
@@ -285,6 +294,9 @@ export class ReportSection {
   destroy(): void {
     if (this.unsubscribe) {
       this.unsubscribe()
+    }
+    if (this.unsubscribeProject) {
+      this.unsubscribeProject()
     }
   }
 }

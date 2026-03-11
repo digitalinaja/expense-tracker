@@ -42,14 +42,15 @@ export class ReportStore {
 
   /**
    * Load full category report dari API
+   * Can optionally filter by project_id
    */
-  async load(): Promise<void> {
+  async load(projectId?: number): Promise<void> {
     this.loading = true
     this.error = null
     this.notify()
 
     try {
-      this.report = await reportService.getFullReport()
+      this.report = await reportService.getFullReport(projectId)
       this.loading = false
       this.notify()
     } catch (error) {

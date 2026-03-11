@@ -26,9 +26,11 @@ export interface UncategorizedReport {
 
 export interface Planning {
   id?: number
+  project_id: number  // REQUIRED - belongs to a project
   name: string
   amount: number
   date: string
+  project_name?: string  // For display purposes from JOIN
   created_at?: string
   updated_at?: string
 }
@@ -43,18 +45,33 @@ export interface Summary {
 export class ExpenseQueries {
   constructor(private db: D1Database) {}
 
-  async getAll(): Promise<Expense[]> {
-    const result = await this.db
-      .prepare(`
-        SELECT
-          e.*,
-          p.name as planning_name
-        FROM expenses e
-        LEFT JOIN planning p ON e.planning_id = p.id
-        ORDER BY e.date DESC, e.created_at DESC
-      `)
-      .all()
-    return result.results as Expense[]
+  async getAll(projectId?: number): Promise<Expense[]> {
+    let query = `
+      SELECT
+        e.*,
+        p.name as planning_name,
+        pl.project_id
+      FROM expenses e
+      LEFT JOIN planning p ON e.planning_id = p.id
+      LEFT JOIN planning pl ON e.planning_id = pl.id
+    `
+
+    // If projectId specified, only get expenses that belong to planning in that project
+    if (projectId !== undefined) {
+      query += ` WHERE pl.project_id = ?`
+    }
+
+    query += ` ORDER BY e.date DESC, e.created_at DESC`
+
+    const stmt = this.db.prepare(query)
+
+    if (projectId !== undefined) {
+      const result = await stmt.bind(projectId).all()
+      return result.results as Expense[]
+    } else {
+      const result = await stmt.all()
+      return result.results as Expense[]
+    }
   }
 
   async getByPlanningId(planningId: number): Promise<Expense[]> {
@@ -166,25 +183,62 @@ export class ExpenseQueries {
 export class PlanningQueries {
   constructor(private db: D1Database) {}
 
-  async getAll(): Promise<Planning[]> {
-    const result = await this.db
-      .prepare('SELECT * FROM planning ORDER BY date DESC, created_at DESC')
-      .all()
-    return result.results as Planning[]
+  async getAll(projectId?: number): Promise<Planning[]> {
+    let query = `
+      SELECT
+        pl.*,
+        p.name as project_name
+      FROM planning pl
+      JOIN projects p ON pl.project_id = p.id
+    `
+
+    if (projectId !== undefined) {
+      query += ' WHERE pl.project_id = ?'
+      query += ' ORDER BY pl.date DESC, pl.created_at DESC'
+      const result = await this.db.prepare(query).bind(projectId).all()
+      return result.results as Planning[]
+    } else {
+      query += ' ORDER BY p.name, pl.date DESC, pl.created_at DESC'
+      const result = await this.db.prepare(query).all()
+      return result.results as Planning[]
+    }
   }
 
   async getById(id: number): Promise<Planning | null> {
     const result = await this.db
-      .prepare('SELECT * FROM planning WHERE id = ?')
+      .prepare(`
+        SELECT
+          pl.*,
+          p.name as project_name
+        FROM planning pl
+        JOIN projects p ON pl.project_id = p.id
+        WHERE pl.id = ?
+      `)
       .bind(id)
       .first()
     return result as Planning | null
   }
 
-  async create(planning: Omit<Planning, 'id' | 'created_at' | 'updated_at'>): Promise<number> {
+  async getByProjectId(projectId: number): Promise<Planning[]> {
     const result = await this.db
-      .prepare('INSERT INTO planning (name, amount, date) VALUES (?, ?, ?)')
-      .bind(planning.name, planning.amount, planning.date)
+      .prepare(`
+        SELECT
+          pl.*,
+          p.name as project_name
+        FROM planning pl
+        JOIN projects p ON pl.project_id = p.id
+        WHERE pl.project_id = ?
+        ORDER BY pl.date DESC, pl.created_at DESC
+      `)
+      .bind(projectId)
+      .all()
+    return result.results as Planning[]
+  }
+
+  async create(planning: Omit<Planning, 'id' | 'created_at' | 'updated_at' | 'project_name'>): Promise<number> {
+    const result = await this.db
+      .prepare('INSERT INTO planning (project_id, name, amount, date) VALUES (?, ?, ?, ?)')
+      .bind(planning.project_id, planning.name, planning.amount, planning.date)
       .run()
 
     if (!result.meta.last_row_id) {
@@ -267,20 +321,35 @@ export class SummaryQueries {
 export class CategoryReportQueries {
   constructor(private db: D1Database) {}
 
-  async getByCategory(): Promise<CategoryReport[]> {
-    const result = await this.db
-      .prepare(`
-        SELECT
-          p.id as planning_id,
-          p.name as planning_name,
-          p.amount as budget_amount,
-          COALESCE(SUM(e.amount), 0) as actual_amount
-        FROM planning p
-        LEFT JOIN expenses e ON p.id = e.planning_id
-        GROUP BY p.id, p.name, p.amount
-        ORDER BY p.name
-      `)
-      .all()
+  async getByCategory(projectId?: number): Promise<CategoryReport[]> {
+    let query = `
+      SELECT
+        p.id as planning_id,
+        p.name as planning_name,
+        p.amount as budget_amount,
+        COALESCE(SUM(e.amount), 0) as actual_amount
+      FROM planning p
+      LEFT JOIN expenses e ON p.id = e.planning_id
+    `
+
+    // Filter by project if specified
+    if (projectId !== undefined) {
+      query += ` WHERE p.project_id = ?`
+    }
+
+    query += `
+      GROUP BY p.id, p.name, p.amount
+      ORDER BY p.name
+    `
+
+    const stmt = this.db.prepare(query)
+
+    let result
+    if (projectId !== undefined) {
+      result = await stmt.bind(projectId).all()
+    } else {
+      result = await stmt.all()
+    }
 
     return result.results.map((row: any) => {
       const budget = row.budget_amount as number
@@ -298,16 +367,26 @@ export class CategoryReportQueries {
     })
   }
 
-  async getUncategorizedReport(): Promise<UncategorizedReport> {
-    const result = await this.db
-      .prepare(`
-        SELECT
-          COALESCE(SUM(amount), 0) as total_amount,
-          COUNT(*) as count
-        FROM expenses
-        WHERE planning_id IS NULL
-      `)
-      .first()
+  async getUncategorizedReport(projectId?: number): Promise<UncategorizedReport> {
+    let query = `
+      SELECT
+        COALESCE(SUM(amount), 0) as total_amount,
+        COUNT(*) as count
+      FROM expenses
+      WHERE planning_id IS NULL
+    `
+
+    // For project-specific reports, we need to exclude uncategorized expenses
+    // because they don't belong to any planning/project
+    // When filtering by project, uncategorized report will be empty
+    if (projectId !== undefined) {
+      return {
+        total_amount: 0,
+        count: 0
+      }
+    }
+
+    const result = await this.db.prepare(query).first()
 
     return {
       total_amount: result?.total_amount as number || 0,
@@ -315,10 +394,10 @@ export class CategoryReportQueries {
     }
   }
 
-  async getFullReport(): Promise<{ categorized: CategoryReport[]; uncategorized: UncategorizedReport }> {
+  async getFullReport(projectId?: number): Promise<{ categorized: CategoryReport[]; uncategorized: UncategorizedReport }> {
     const [categorized, uncategorized] = await Promise.all([
-      this.getByCategory(),
-      this.getUncategorizedReport()
+      this.getByCategory(projectId),
+      this.getUncategorizedReport(projectId)
     ])
 
     return { categorized, uncategorized }

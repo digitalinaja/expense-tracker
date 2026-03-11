@@ -14,10 +14,12 @@ export class ReportService {
 
   /**
    * Get full categorized report
+   * Can optionally filter by project_id
    */
-  async getFullReport(): Promise<FullCategoryReport> {
+  async getFullReport(projectId?: number): Promise<FullCategoryReport> {
     try {
-      const response = await fetch(`${this.baseUrl}/by-category`)
+      const url = projectId ? `${this.baseUrl}/by-category?project_id=${projectId}` : `${this.baseUrl}/by-category`
+      const response = await fetch(url)
       const result: ApiResponse<FullCategoryReport> = await response.json()
 
       if (result.success && result.data) {

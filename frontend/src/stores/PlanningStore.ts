@@ -42,14 +42,15 @@ export class PlanningStore {
 
   /**
    * Load all planning items from API
+   * Can optionally filter by project_id
    */
-  async load(): Promise<void> {
+  async load(projectId?: number): Promise<void> {
     this.loading = true
     this.error = null
     this.notify()
 
     try {
-      this.planning = await planningService.getAll()
+      this.planning = await planningService.getAll(projectId)
       this.loading = false
       this.notify()
     } catch (error) {

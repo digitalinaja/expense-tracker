@@ -9,6 +9,23 @@
 </head>
 <body>
     <div class="app-container">
+        <!-- Project Manager -->
+        <div class="project-manager" id="projectManager">
+            <div class="project-manager-container">
+                <div class="project-header">
+                    <select id="projectDropdown" class="project-dropdown">
+                        <option value="">Loading projects...</option>
+                    </select>
+                    <button id="addProjectBtn" class="btn-add-project" title="Create New Project">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <div class="container">
             <!-- Dashboard Page -->
             <div class="page active" id="page-dashboard">
@@ -156,6 +173,71 @@
     <!-- Loading Overlay -->
     <div class="loading-overlay" style="display: none;">
         <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Project Form Modal -->
+    <div id="projectModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Buat Project Baru</h2>
+                <button class="close-modal" onclick="projectForm.close()">&times;</button>
+            </div>
+            <form id="projectFormInner">
+                <div class="form-group">
+                    <label for="projectName">Nama Project *</label>
+                    <input type="text" id="projectName" placeholder="Contoh: Libur Ramadhan 2026" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="projectDescription">Deskripsi (Opsional)</label>
+                    <textarea id="projectDescription" rows="3" placeholder="Jelaskan tujuan project ini..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="startDate">Tanggal Mulai (Opsional)</label>
+                        <input type="date" id="startDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="endDate">Tanggal Selesai (Opsional)</label>
+                        <input type="date" id="endDate">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="projectForm.close()">Batal</button>
+                    <button type="submit" class="btn-primary">Simpan Project</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Project Creation Wizard -->
+    <div id="projectWizard" class="wizard-overlay" style="display: none;">
+        <div class="wizard-content">
+            <div class="wizard-header">
+                <h1>Selamat Datang! 👋</h1>
+                <p>Mulai dengan membuat project pertama Anda</p>
+            </div>
+            <div class="wizard-body">
+                <div class="wizard-icon">📊</div>
+                <p class="wizard-description">
+                    Project akan membantu Anda mengelola budget dan pengeluaran untuk periode atau tujuan tertentu.
+                </p>
+                <form id="wizardProjectForm">
+                    <div class="form-group">
+                        <label for="wizardProjectName">Nama Project *</label>
+                        <input type="text" id="wizardProjectName" placeholder="Contoh: Bulan Maret 2026" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="wizardProjectDescription">Deskripsi (Opsional)</label>
+                        <textarea id="wizardProjectDescription" rows="2" placeholder="Jelaskan tujuan project ini..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary btn-large">Buat Project & Mulai</button>
+                </form>
+            </div>
+        </div>
     </div>
 
     <script type="module" src="/src/main.ts"></script>

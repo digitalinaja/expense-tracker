@@ -42,14 +42,15 @@ export class ExpenseStore {
 
   /**
    * Load all expenses from API
+   * Can optionally filter by project_id
    */
-  async load(): Promise<void> {
+  async load(projectId?: number): Promise<void> {
     this.loading = true
     this.error = null
     this.notify()
 
     try {
-      this.expenses = await expenseService.getAll()
+      this.expenses = await expenseService.getAll(projectId)
       this.loading = false
       this.notify()
     } catch (error) {

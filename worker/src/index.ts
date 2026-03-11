@@ -3,6 +3,7 @@ import { cors } from 'hono/cors'
 import { expensesRouter } from './routes/expenses'
 import { planningRouter } from './routes/planning'
 import { reportsRouter } from './routes/reports'
+import { projectsRouter } from './routes/projects'
 import { errorHandler } from './middleware/error'
 
 // Environment types
@@ -35,6 +36,7 @@ app.get('/', (c) => {
 // API routes
 app.route('/api/expenses', expensesRouter)
 app.route('/api/planning', planningRouter)
+app.route('/api/projects', projectsRouter)
 app.route('/api/reports', reportsRouter)
 
 // Error handler (must be last)

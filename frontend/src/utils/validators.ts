@@ -90,3 +90,53 @@ export function isInputSafe(input: string): boolean {
   const dangerousChars = /<script|javascript:|onerror|onload|onclick/i
   return !dangerousChars.test(input)
 }
+
+/**
+ * Validate project form data
+ */
+export function validateProjectFormData(data: {
+  name: string
+  description?: string
+  start_date?: string
+  end_date?: string
+}): ValidationResult {
+  const errors: Record<string, string> = {}
+
+  // Validate name
+  if (!data.name || typeof data.name !== 'string' || data.name.trim() === '') {
+    errors.name = 'Nama project harus diisi'
+  } else if (data.name.trim().length < 3) {
+    errors.name = 'Nama project minimal 3 karakter'
+  } else if (data.name.trim().length > 100) {
+    errors.name = 'Nama project maksimal 100 karakter'
+  }
+
+  // Validate description (optional)
+  if (data.description !== undefined && data.description !== null) {
+    if (typeof data.description === 'string' && data.description.trim().length > 500) {
+      errors.description = 'Deskripsi maksimal 500 karakter'
+    }
+  }
+
+  // Validate dates (optional)
+  const startDate = data.start_date ? new Date(data.start_date) : null
+  const endDate = data.end_date ? new Date(data.end_date) : null
+
+  if (data.start_date && isNaN(startDate!.getTime())) {
+    errors.dates = 'Tanggal mulai tidak valid'
+  }
+
+  if (data.end_date && isNaN(endDate!.getTime())) {
+    errors.dates = 'Tanggal selesai tidak valid'
+  }
+
+  // Validate date range logic
+  if (startDate && endDate && startDate > endDate) {
+    errors.dates = 'Tanggal mulai tidak boleh setelah tanggal selesai'
+  }
+
+  return {
+    valid: Object.keys(errors).length === 0,
+    errors
+  }
+}

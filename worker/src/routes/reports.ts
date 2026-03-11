@@ -8,11 +8,14 @@ type Env = {
 
 export const reportsRouter = new Hono<{ Bindings: Env }>()
 
-// GET /api/reports/by-category - Get categorized expense report
+// GET /api/reports/by-category - Get categorized expense report (optionally filtered by project)
 reportsRouter.get('/by-category', async (c) => {
   try {
+    const projectIdParam = c.req.query('project_id')
+    const projectId = projectIdParam ? parseInt(projectIdParam) : undefined
+
     const reportQueries = new CategoryReportQueries(c.env.DB)
-    const report = await reportQueries.getFullReport()
+    const report = await reportQueries.getFullReport(projectId)
 
     return c.json({
       success: true,
