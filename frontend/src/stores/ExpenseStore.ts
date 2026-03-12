@@ -1,5 +1,7 @@
 import { expenseService } from '../services/ExpenseService'
 import type { Expense } from '../types'
+import { reportStore } from './ReportStore'
+import { projectStore } from './ProjectStore'
 
 /**
  * Simple reactive store for expenses
@@ -70,15 +72,14 @@ export class ExpenseStore {
     this.notify()
 
     try {
-      const id = await expenseService.create(expenseData)
-      const newExpense: Expense = {
-        id,
-        ...expenseData,
-        created_at: new Date().toISOString()
-      }
-      this.expenses.unshift(newExpense)
-      this.loading = false
-      this.notify()
+      await expenseService.create(expenseData)
+      
+      // Reload expenses from API instead of manual push to get planning_names
+      const currentProjectId = projectStore.getCurrentProjectId()
+      await this.load(currentProjectId || undefined)
+      
+      // Reload reports so summaries update in real-time
+      await reportStore.load(currentProjectId || undefined)
     } catch (error) {
       this.loading = false
       this.error = error instanceof Error ? error.message : 'Failed to add expense'

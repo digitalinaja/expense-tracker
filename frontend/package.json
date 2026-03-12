@@ -10,7 +10,11 @@
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
+    "@types/google-one-tap": "^1.2.7",
     "typescript": "^5.3.3",
     "vite": "^5.0.8"
+  },
+  "dependencies": {
+    "jwt-decode": "^4.0.0"
   }
 }

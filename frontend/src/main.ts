@@ -11,12 +11,19 @@ import { projectCreationWizard } from './components/ProjectCreationWizard'
 import { expenseStore } from './stores/ExpenseStore'
 import { planningStore } from './stores/PlanningStore'
 import { projectStore } from './stores/ProjectStore'
+import { authModal } from './components/AuthModal'
+import { authButton } from './components/AuthButton'
+import { authStore } from './stores/AuthStore'
 
 // Import ProjectManager for side-effect (auto-initialization)
 import './components/ProjectManager'
 
 // Make projectForm globally available for HTML onclick handlers
 ;(window as any).projectForm = projectForm
+
+// Make authModal and authButton globally available
+;(window as any).authModal = authModal
+;(window as any).authButton = authButton
 
 /**
  * Main application entry point
@@ -59,6 +66,27 @@ class App {
     try {
       // Show loading state
       this.showLoading()
+
+      // STEP 0: Check authentication first (including OAuth callback)
+      await authModal.checkAuth()
+
+      // Wait a bit for async auth operations to complete
+      await new Promise(resolve => setTimeout(resolve, 300))
+
+      if (!authStore.isAuthenticated()) {
+        // User not authenticated - authModal.checkAuth() already showed the modal
+        this.hideLoading()
+
+        // Subscribe to auth store to detect when user logs in
+        authStore.subscribe((state) => {
+          if (state.isAuthenticated && !this.isInitialized) {
+            // User just logged in, initialize the app
+            this.init()
+          }
+        })
+
+        return
+      }
 
       // STEP 1: Load projects first
       await projectStore.load()

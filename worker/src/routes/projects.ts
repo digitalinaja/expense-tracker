@@ -8,20 +8,37 @@ type Env = {
 
 export const projectsRouter = new Hono<{ Bindings: Env }>()
 
-// GET /api/projects - Get all projects
+// GET /api/projects - Get all projects with user access
 projectsRouter.get('/', async (c) => {
   try {
+    const user = c.get('user') // Get user from auth middleware
+    if (!user) {
+      console.error('No user found in context')
+      return c.json({
+        success: false,
+        error: 'Authentication required'
+      }, 401)
+    }
+
+    console.log('Fetching projects for user:', user.userId)
+
     const projectQueries = new ProjectQueries(c.env.DB)
-    const projects = await projectQueries.getAll()
+    const projects = await projectQueries.getAllWithAccess(user.userId)
+
+    console.log('Projects fetched successfully:', projects.length)
+
     return c.json({
       success: true,
       data: projects
     })
   } catch (error) {
     console.error('Error fetching projects:', error)
+    console.error('Error details:', error instanceof Error ? error.message : String(error))
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack')
+
     return c.json({
       success: false,
-      error: 'Failed to fetch projects'
+      error: error instanceof Error ? error.message : 'Failed to fetch projects'
     }, 500)
   }
 })
@@ -30,6 +47,14 @@ projectsRouter.get('/', async (c) => {
 // NOTE: This route must come BEFORE /:id to avoid route conflicts
 projectsRouter.get('/:id/summary', async (c) => {
   try {
+    const user = c.get('user')
+    if (!user) {
+      return c.json({
+        success: false,
+        error: 'Authentication required'
+      }, 401)
+    }
+
     const id = parseInt(c.req.param('id'))
     if (isNaN(id)) {
       return c.json({
@@ -39,6 +64,16 @@ projectsRouter.get('/:id/summary', async (c) => {
     }
 
     const projectQueries = new ProjectQueries(c.env.DB)
+
+    // Check if user has access to this project
+    const project = await projectQueries.getByIdWithAccess(id, user.userId)
+    if (!project) {
+      return c.json({
+        success: false,
+        error: 'Project not found or access denied'
+      }, 404)
+    }
+
     const summary = await projectQueries.getSummary(id)
 
     return c.json({
@@ -63,6 +98,14 @@ projectsRouter.get('/:id/summary', async (c) => {
 // GET /api/projects/:id - Get single project
 projectsRouter.get('/:id', async (c) => {
   try {
+    const user = c.get('user')
+    if (!user) {
+      return c.json({
+        success: false,
+        error: 'Authentication required'
+      }, 401)
+    }
+
     const id = parseInt(c.req.param('id'))
     if (isNaN(id)) {
       return c.json({
@@ -72,12 +115,12 @@ projectsRouter.get('/:id', async (c) => {
     }
 
     const projectQueries = new ProjectQueries(c.env.DB)
-    const project = await projectQueries.getById(id)
+    const project = await projectQueries.getByIdWithAccess(id, user.userId)
 
     if (!project) {
       return c.json({
         success: false,
-        error: 'Project not found'
+        error: 'Project not found or access denied'
       }, 404)
     }
 
@@ -97,6 +140,14 @@ projectsRouter.get('/:id', async (c) => {
 // POST /api/projects - Create new project
 projectsRouter.post('/', async (c) => {
   try {
+    const user = c.get('user')
+    if (!user) {
+      return c.json({
+        success: false,
+        error: 'Authentication required'
+      }, 401)
+    }
+
     const body = await c.req.json()
 
     // Validate required fields
@@ -113,7 +164,7 @@ projectsRouter.post('/', async (c) => {
       description: body.description || null,
       start_date: body.start_date || null,
       end_date: body.end_date || null
-    })
+    }, user.userId) // Pass user.userId as owner_id
 
     return c.json({
       success: true,
@@ -132,6 +183,14 @@ projectsRouter.post('/', async (c) => {
 // PUT /api/projects/:id - Update project
 projectsRouter.put('/:id', async (c) => {
   try {
+    const user = c.get('user')
+    if (!user) {
+      return c.json({
+        success: false,
+        error: 'Authentication required'
+      }, 401)
+    }
+
     const id = parseInt(c.req.param('id'))
     if (isNaN(id)) {
       return c.json({
@@ -148,12 +207,12 @@ projectsRouter.put('/:id', async (c) => {
       description: body.description,
       start_date: body.start_date,
       end_date: body.end_date
-    })
+    }, user.userId)
 
     if (!updated) {
       return c.json({
         success: false,
-        error: 'Project not found or no changes made'
+        error: 'Project not found, access denied, or no changes made'
       }, 404)
     }
 
@@ -173,6 +232,14 @@ projectsRouter.put('/:id', async (c) => {
 // DELETE /api/projects/:id - Delete project
 projectsRouter.delete('/:id', async (c) => {
   try {
+    const user = c.get('user')
+    if (!user) {
+      return c.json({
+        success: false,
+        error: 'Authentication required'
+      }, 401)
+    }
+
     const id = parseInt(c.req.param('id'))
     if (isNaN(id)) {
       return c.json({
@@ -183,12 +250,12 @@ projectsRouter.delete('/:id', async (c) => {
 
     const projectQueries = new ProjectQueries(c.env.DB)
 
-    const deleted = await projectQueries.delete(id)
+    const deleted = await projectQueries.delete(id, user.userId)
 
     if (!deleted) {
       return c.json({
         success: false,
-        error: 'Project not found'
+        error: 'Project not found or access denied'
       }, 404)
     }
 

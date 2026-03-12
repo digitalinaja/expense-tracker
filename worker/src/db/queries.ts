@@ -163,9 +163,13 @@ export class ExpenseQueries {
     if (updates.length === 0) return false
 
     values.push(id)
+
+    // Ensure no undefined values are passed to D1
+    const safeValues = values.map(v => v === undefined ? null : v)
+
     const result = await this.db
       .prepare(`UPDATE expenses SET ${updates.join(', ')} WHERE id = ?`)
-      .bind(...values)
+      .bind(...safeValues)
       .run()
 
     return result.meta.changes > 0

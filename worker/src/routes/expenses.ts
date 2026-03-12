@@ -73,7 +73,8 @@ expensesRouter.post('/', validateExpense, async (c) => {
     const id = await expenseQueries.create({
       name: body.name,
       amount: body.amount,
-      date: body.date
+      date: body.date,
+      planning_id: body.planning_id
     })
 
     return c.json({
@@ -141,7 +142,8 @@ expensesRouter.put('/:id', validateExpense, async (c) => {
     const updated = await expenseQueries.update(id, {
       name: body.name,
       amount: body.amount,
-      date: body.date
+      date: body.date,
+      planning_id: body.planning_id
     })
 
     if (!updated) {

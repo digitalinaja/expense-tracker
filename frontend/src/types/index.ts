@@ -94,3 +94,81 @@ export interface FullCategoryReport {
   categorized: CategoryReport[]
   uncategorized: UncategorizedReport
 }
+
+// ============================================
+// Authentication Types
+// ============================================
+
+export interface User {
+  id: number
+  email: string
+  name: string
+  avatar_url?: string
+  created_at?: string
+  updated_at?: string
+}
+
+export interface AuthResponse {
+  user: User
+  token: string
+  refreshToken?: string
+}
+
+export interface AuthState {
+  user: User | null
+  token: string | null
+  isAuthenticated: boolean
+}
+
+// ============================================
+// Collaboration Types
+// ============================================
+
+export interface ProjectCollaborator {
+  id?: number
+  project_id: number
+  user_id: number
+  role: 'editor' | 'viewer'
+  invited_by: number
+  status: 'pending' | 'accepted' | 'declined'
+  created_at?: string
+  updated_at?: string
+}
+
+export interface CollaboratorWithUser extends ProjectCollaborator {
+  user_email: string
+  user_name: string
+  user_avatar_url?: string
+  inviter_name: string
+}
+
+export interface Invitation {
+  id: number
+  project_id: number
+  project_name: string
+  project_description?: string
+  role: 'editor' | 'viewer'
+  inviter_id: number
+  inviter_name: string
+  inviter_email: string
+  status: 'pending' | 'accepted' | 'declined'
+  created_at: string
+}
+
+export interface ProjectWithAccess extends Project {
+  is_owner: boolean
+  user_role?: 'editor' | 'viewer'
+  collaborator_count?: number
+}
+
+// ============================================
+// Google Identity Services Types
+// ============================================
+
+declare global {
+  interface Window {
+    google?: typeof import('google-one-tap')
+  }
+}
+
+export {} // Make this a module

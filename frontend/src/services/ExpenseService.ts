@@ -1,4 +1,5 @@
 import type { Expense, ApiResponse, ExpenseFormData } from '../types'
+import { authService } from './AuthService'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL : '/api'
 
@@ -13,13 +14,25 @@ export class ExpenseService {
   }
 
   /**
+   * Get auth headers for API requests
+   */
+  private getHeaders(): Record<string, string> {
+    return {
+      'Content-Type': 'application/json',
+      ...authService.getAuthHeaders()
+    }
+  }
+
+  /**
    * Get all expenses
    * Can optionally filter by project_id
    */
   async getAll(projectId?: number): Promise<Expense[]> {
     try {
       const url = projectId ? `${this.baseUrl}?project_id=${projectId}` : this.baseUrl
-      const response = await fetch(url)
+      const response = await fetch(url, {
+        headers: this.getHeaders()
+      })
       const result: ApiResponse<Expense[]> = await response.json()
 
       if (result.success && result.data) {
@@ -38,7 +51,9 @@ export class ExpenseService {
    */
   async getById(id: number): Promise<Expense> {
     try {
-      const response = await fetch(`${this.baseUrl}/${id}`)
+      const response = await fetch(`${this.baseUrl}/${id}`, {
+        headers: this.getHeaders()
+      })
       const result: ApiResponse<Expense> = await response.json()
 
       if (result.success && result.data) {
@@ -59,9 +74,7 @@ export class ExpenseService {
     try {
       const response = await fetch(this.baseUrl, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: this.getHeaders(),
         body: JSON.stringify(data)
       })
 
@@ -85,9 +98,7 @@ export class ExpenseService {
     try {
       const response = await fetch(`${this.baseUrl}/${id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: this.getHeaders(),
         body: JSON.stringify(data)
       })
 
@@ -108,7 +119,8 @@ export class ExpenseService {
   async delete(id: number): Promise<void> {
     try {
       const response = await fetch(`${this.baseUrl}/${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: this.getHeaders()
       })
 
       const result: ApiResponse<void> = await response.json()

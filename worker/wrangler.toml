@@ -1,8 +1,9 @@
 name = "expense-tracker-api"
 main = "src/index.ts"
-compatibility_date = "2024-01-01"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
 
-[env.development]
+# Environment variables (shared across all environments)
 vars = { ENVIRONMENT = "development" }
 
 [env.production]
@@ -12,7 +13,8 @@ vars = { ENVIRONMENT = "production" }
 [[d1_databases]]
 binding = "DB"
 database_name = "expense-tracker-db"
-database_id = "77bae638-fe3f-412d-86d5-b258c7a10e1a" # Replace with actual D1 database ID after creation
+database_id = "77bae638-fe3f-412d-86d5-b258c7a10e1a"
+migrations_dir = "../d1/migrations"
 
 # KV Namespace binding (optional, for caching)
 [[kv_namespaces]]

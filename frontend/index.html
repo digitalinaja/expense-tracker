@@ -6,9 +6,17 @@
     <meta name="description" content="Aplikasi Tracker Pengeluaran - Catat dan atur pengeluaran Anda dengan mudah">
     <title>Tracker Pengeluaran</title>
     <link rel="stylesheet" href="/src/styles/main.css">
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+    window.GOOGLE_CLIENT_ID = '808374283367-tkv0pvu42v3pgqscbi1p6hnjho9g7itf.apps.googleusercontent.com';
+    </script>
 </head>
 <body>
     <div class="app-container">
+        <!-- Auth Button Container -->
+        <div id="auth-button-container" style="position: fixed; top: 16px; right: 16px; z-index: 1000;"></div>
+
         <!-- Project Manager -->
         <div class="project-manager" id="projectManager">
             <div class="project-manager-container">

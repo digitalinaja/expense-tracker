@@ -1,4 +1,5 @@
 import type { Project, ProjectFormData, ProjectSummary, ApiResponse } from '../types'
+import { authService } from './AuthService'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL : '/api'
 
@@ -13,20 +14,43 @@ export class ProjectService {
   }
 
   /**
+   * Get auth headers for API requests
+   */
+  private getHeaders(): Record<string, string> {
+    return {
+      'Content-Type': 'application/json',
+      ...authService.getAuthHeaders()
+    }
+  }
+
+  /**
    * Get all projects
    */
   async getAll(): Promise<Project[]> {
     try {
-      const response = await fetch(this.baseUrl)
+      console.log('Fetching projects from:', this.baseUrl)
+      console.log('Auth headers:', authService.getAuthHeaders())
+
+      const response = await fetch(this.baseUrl, {
+        headers: this.getHeaders()
+      })
+
+      console.log('Response status:', response.status)
+      console.log('Response ok:', response.ok)
+
       const result: ApiResponse<Project[]> = await response.json()
 
+      console.log('API Result:', result)
+
       if (result.success && result.data) {
+        console.log('Projects fetched:', result.data.length)
         return result.data
       }
 
       throw new Error(result.error || 'Failed to fetch projects')
     } catch (error) {
       console.error('Error fetching projects:', error)
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack')
       throw error
     }
   }
@@ -36,7 +60,9 @@ export class ProjectService {
    */
   async getById(id: number): Promise<Project> {
     try {
-      const response = await fetch(`${this.baseUrl}/${id}`)
+      const response = await fetch(`${this.baseUrl}/${id}`, {
+        headers: this.getHeaders()
+      })
       const result: ApiResponse<Project> = await response.json()
 
       if (result.success && result.data) {
@@ -55,7 +81,9 @@ export class ProjectService {
    */
   async getSummary(projectId: number): Promise<ProjectSummary> {
     try {
-      const response = await fetch(`${this.baseUrl}/${projectId}/summary`)
+      const response = await fetch(`${this.baseUrl}/${projectId}/summary`, {
+        headers: this.getHeaders()
+      })
       const result: ApiResponse<ProjectSummary> = await response.json()
 
       if (result.success && result.data) {
@@ -76,9 +104,7 @@ export class ProjectService {
     try {
       const response = await fetch(this.baseUrl, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: this.getHeaders(),
         body: JSON.stringify(data)
       })
 
@@ -102,9 +128,7 @@ export class ProjectService {
     try {
       const response = await fetch(`${this.baseUrl}/${id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: this.getHeaders(),
         body: JSON.stringify(data)
       })
 
@@ -125,7 +149,8 @@ export class ProjectService {
   async delete(id: number): Promise<void> {
     try {
       const response = await fetch(`${this.baseUrl}/${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: this.getHeaders()
       })
 
       const result: ApiResponse<void> = await response.json()
