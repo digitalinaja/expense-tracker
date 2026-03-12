@@ -62,6 +62,13 @@ export class ProjectStore {
   }
 
   /**
+   * Get project by ID
+   */
+  getById(id: number): Project | undefined {
+    return this.projects.find(p => p.id === id)
+  }
+
+  /**
    * Load all projects dari API
    */
   async load(): Promise<void> {

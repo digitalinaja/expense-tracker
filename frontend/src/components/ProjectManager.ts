@@ -1,5 +1,6 @@
 import { projectStore } from '../stores/ProjectStore'
 import { projectForm } from './ProjectForm'
+import { collaboratorPanel } from './CollaboratorPanel'
 import type { Project } from '../types'
 
 /**
@@ -10,6 +11,7 @@ export class ProjectManager {
   private container: HTMLElement | null = null
   private projectDropdown: HTMLSelectElement | null = null
   private addProjectButton: HTMLButtonElement | null = null
+  private collaboratorButton: HTMLButtonElement | null = null
 
   constructor() {
     this.createOrUpdateUI()
@@ -56,13 +58,34 @@ export class ProjectManager {
     this.projectDropdown = this.container.querySelector('#projectDropdown') as HTMLSelectElement
     this.addProjectButton = this.container.querySelector('#addProjectBtn') as HTMLButtonElement
 
-    if (!this.projectDropdown || !this.addProjectButton) {
+    // Create collaborator button if it doesn't exist
+    if (!this.container.querySelector('#collaboratorBtn')) {
+      this.collaboratorButton = document.createElement('button')
+      this.collaboratorButton.id = 'collaboratorBtn'
+      this.collaboratorButton.className = 'btn-collaborator-compact'
+      this.collaboratorButton.title = 'Manage Collaborators'
+      this.collaboratorButton.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+      `
+      // Insert after add project button
+      this.addProjectButton?.after(this.collaboratorButton)
+    } else {
+      this.collaboratorButton = this.container.querySelector('#collaboratorBtn') as HTMLButtonElement
+    }
+
+    if (!this.projectDropdown || !this.addProjectButton || !this.collaboratorButton) {
       console.error('Required project manager elements not found in HTML')
       return
     }
 
     // Attach event listeners
     this.addProjectButton.addEventListener('click', () => this.handleAddProject())
+    this.collaboratorButton.addEventListener('click', () => this.handleCollaborators())
     this.projectDropdown.addEventListener('change', () => this.handleProjectChange())
   }
 
@@ -132,6 +155,13 @@ export class ProjectManager {
    */
   private handleAddProject(): void {
     projectForm.openForCreate()
+  }
+
+  /**
+   * Handle collaborators button
+   */
+  private handleCollaborators(): void {
+    collaboratorPanel.show()
   }
 
   /**

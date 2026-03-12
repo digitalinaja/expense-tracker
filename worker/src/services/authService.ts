@@ -205,18 +205,17 @@ export class AuthService {
     }
   }
 
-  /**
-   * Validate token and get user info
-   */
   async validateTokenAndGetUser(token: string): Promise<{
     userId: number
     email: string
+    id?: number
   } | null> {
     try {
       const payload = await this.verifyJWT(token)
       return {
         userId: payload.userId,
-        email: payload.email
+        email: payload.email,
+        id: payload.userId
       }
     } catch (error) {
       return null

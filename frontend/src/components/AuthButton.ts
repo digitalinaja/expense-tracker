@@ -1,6 +1,8 @@
 import { authStore } from '../stores/AuthStore'
 import { authModal } from './AuthModal'
 import { authService } from '../services/AuthService'
+import { collaborationStore } from '../stores/CollaborationStore'
+import { invitationModal } from './InvitationModal'
 import type { User } from '../types'
 
 /**
@@ -10,6 +12,7 @@ import type { User } from '../types'
 export class AuthButton {
   private container: HTMLElement | null = null
   private unsubscribe: (() => void) | null = null
+  private unsubscribeCollab: (() => void) | null = null
 
   constructor(containerId: string = 'auth-button-container') {
     this.container = document.getElementById(containerId)
@@ -30,7 +33,48 @@ export class AuthButton {
   private subscribe(): void {
     this.unsubscribe = authStore.subscribe(() => {
       this.render()
+      this.subscribeToCollaborations()
     })
+  }
+
+  /**
+   * Subscribe to collaboration store for invitations
+   */
+  private subscribeToCollaborations(): void {
+    // Only subscribe if authenticated
+    if (!authStore.isAuthenticated()) {
+      if (this.unsubscribeCollab) {
+        this.unsubscribeCollab()
+        this.unsubscribeCollab = null
+      }
+      return
+    }
+
+    // Subscribe to collaboration store
+    if (!this.unsubscribeCollab) {
+      this.unsubscribeCollab = collaborationStore.subscribe((state) => {
+        this.updateInvitationBadge(state.pendingCount)
+      })
+    }
+
+    // Initial update
+    const pendingCount = collaborationStore.getPendingCount()
+    this.updateInvitationBadge(pendingCount)
+  }
+
+  /**
+   * Update invitation badge
+   */
+  private updateInvitationBadge(count: number): void {
+    const badge = this.container?.querySelector('.invitation-badge')
+    if (!badge) return
+
+    if (count > 0) {
+      badge.textContent = count.toString()
+      badge.style.display = 'flex'
+    } else {
+      badge.style.display = 'none'
+    }
   }
 
   /**
@@ -57,6 +101,7 @@ export class AuthButton {
 
     const userInitials = this.getInitials(user.name)
     const userAvatar = user.avatar_url
+    const pendingCount = collaborationStore.getPendingCount()
 
     this.container.innerHTML = `
       <div class="auth-button authenticated">
@@ -86,6 +131,17 @@ export class AuthButton {
             </div>
 
             <div class="user-dropdown-divider"></div>
+
+            <button class="user-dropdown-item invitation-item" onclick="authButton.handleInvitations()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+              <span>Undangan</span>
+              <span class="invitation-badge" style="display: ${pendingCount > 0 ? 'flex' : 'none'}">${pendingCount}</span>
+            </button>
 
             <button class="user-dropdown-item" onclick="authButton.handleProfile()">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -171,6 +227,14 @@ export class AuthButton {
   }
 
   /**
+   * Handle invitations click
+   */
+  handleInvitations(): void {
+    this.toggleMenu()
+    invitationModal.show()
+  }
+
+  /**
    * Handle logout
    */
   async handleLogout(): Promise<void> {
@@ -210,6 +274,9 @@ export class AuthButton {
   destroy(): void {
     if (this.unsubscribe) {
       this.unsubscribe()
+    }
+    if (this.unsubscribeCollab) {
+      this.unsubscribeCollab()
     }
   }
 }

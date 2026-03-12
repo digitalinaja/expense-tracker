@@ -14,6 +14,10 @@ import { projectStore } from './stores/ProjectStore'
 import { authModal } from './components/AuthModal'
 import { authButton } from './components/AuthButton'
 import { authStore } from './stores/AuthStore'
+import { invitationModal } from './components/InvitationModal'
+import { inviteCollaboratorModal } from './components/InviteCollaboratorModal'
+import { collaboratorPanel } from './components/CollaboratorPanel'
+import { collaborationStore } from './stores/CollaborationStore'
 
 // Import ProjectManager for side-effect (auto-initialization)
 import './components/ProjectManager'
@@ -24,6 +28,11 @@ import './components/ProjectManager'
 // Make authModal and authButton globally available
 ;(window as any).authModal = authModal
 ;(window as any).authButton = authButton
+
+// Make collaboration components globally available
+;(window as any).invitationModal = invitationModal
+;(window as any).inviteCollaboratorModal = inviteCollaboratorModal
+;(window as any).collaboratorPanel = collaboratorPanel
 
 /**
  * Main application entry point
@@ -93,6 +102,14 @@ class App {
           authStore.updateUser(updatedUser)
         } catch (err) {
           console.warn('Failed to refresh user info in background', err)
+        }
+
+        // Load invitations for authenticated user
+        try {
+          const { collaborationService } = await import('./services/CollaborationService')
+          await collaborationStore.loadInvitations(() => collaborationService.getAllInvitations())
+        } catch (err) {
+          console.warn('Failed to load invitations in background', err)
         }
       }
 

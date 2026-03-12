@@ -11,6 +11,8 @@ export class CollaborationStore {
   private listeners: Array<(state: {
     invitations: Invitation[]
     pendingCount: number
+    collaboratorsMap: Map<number, CollaboratorWithUser[]>
+    error: string | null
   }) => void> = []
   private loading: boolean = false
   private error: string | null = null
@@ -18,7 +20,12 @@ export class CollaborationStore {
   /**
    * Subscribe ke state changes
    */
-  subscribe(listener: (state: { invitations: Invitation[]; pendingCount: number }) => void): () => void {
+  subscribe(listener: (state: { 
+    invitations: Invitation[]; 
+    pendingCount: number;
+    collaboratorsMap: Map<number, CollaboratorWithUser[]>;
+    error: string | null 
+  }) => void): () => void {
     this.listeners.push(listener)
     // Return unsubscribe function
     return () => {
@@ -32,7 +39,9 @@ export class CollaborationStore {
   private notify(): void {
     this.listeners.forEach(listener => listener({
       invitations: this.invitations,
-      pendingCount: this.pendingCount
+      pendingCount: this.pendingCount,
+      collaboratorsMap: this.collaboratorsMap,
+      error: this.error
     }))
   }
 

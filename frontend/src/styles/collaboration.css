@@ -1,0 +1,556 @@
+/* ============================================
+   Collaboration Components Styling
+   ============================================ */
+
+/* Collaborator Button in Project Manager */
+.btn-collaborator-compact {
+    background: white;
+    border: none;
+    padding: 6px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    color: #6c757d;
+}
+
+.btn-collaborator-compact:hover {
+    background: #f8f9fa;
+    color: #10b981;
+    transform: scale(1.05);
+}
+
+.btn-collaborator-compact svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Invitation Badge in User Menu */
+.invitation-badge {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+}
+
+.user-dropdown-item.invitation-item {
+    position: relative;
+}
+
+.user-dropdown-item.invitation-item:hover {
+    background: #fff5f5;
+}
+
+.collaboration-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+}
+
+#inviteCollaboratorModal {
+    z-index: 2050;
+}
+
+.collaboration-modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+.collaboration-modal-content {
+    position: relative;
+    background: white;
+    border-radius: 16px;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.collaboration-modal-content.small {
+    width: 90%;
+    max-width: 450px;
+}
+
+.collaboration-modal-content.large {
+    width: 90%;
+    max-width: 550px;
+}
+
+.collaboration-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+}
+
+.collaboration-modal-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.collaboration-modal-title svg {
+    color: #10b981;
+}
+
+.collaboration-modal-title h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.collaboration-modal-close {
+    background: transparent;
+    border: none;
+    font-size: 28px;
+    color: #6b7280;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.collaboration-modal-close:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+.collaboration-modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* Collaboration Loading State */
+.collaboration-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    color: #6b7280;
+}
+
+.loading-spinner-small {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #e5e7eb;
+    border-top: 3px solid #10b981;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Collaboration Empty State */
+.collaboration-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    color: #6b7280;
+    text-align: center;
+}
+
+.collaboration-empty svg {
+    color: #d1d5db;
+    margin-bottom: 16px;
+}
+
+.collaboration-empty p {
+    font-size: 14px;
+    margin: 0;
+}
+
+/* Collaboration Error */
+.collaboration-error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 16px;
+}
+
+/* Collaboration Success */
+.collaboration-success {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #166534;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 16px;
+}
+
+/* ============================================
+   Invitation Card Styling
+   ============================================ */
+
+.invitation-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.invitation-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 16px;
+    transition: all 0.3s ease;
+}
+
+.invitation-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: #d1d5db;
+}
+
+.invitation-card.invitation-removing {
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+}
+
+.invitation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.invitation-project {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    flex: 1;
+}
+
+.invitation-project svg {
+    color: #10b981;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.invitation-project h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 4px 0;
+}
+
+.invitation-project p {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0;
+}
+
+.badge-editor, .badge-viewer {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.badge-editor {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.badge-viewer {
+    background: #f3f4f6;
+    color: #4b5563;
+}
+
+.invitation-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 12px;
+}
+
+.invitation-inviter {
+    color: #6b7280;
+}
+
+.invitation-date {
+    color: #9ca3af;
+}
+
+.invitation-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-invitation {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex: 1;
+    justify-content: center;
+}
+
+.btn-invitation:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-decline {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+}
+
+.btn-decline:hover:not(:disabled) {
+    background: #fee2e2;
+}
+
+.btn-accept {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border: none;
+    color: white;
+}
+
+.btn-accept:hover:not(:disabled) {
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    transform: translateY(-1px);
+}
+
+/* ============================================
+   Collaborator Panel Styling
+   ============================================ */
+
+.collaborator-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.collaborator-project-info h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 4px 0;
+}
+
+.collaborator-project-info p {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0;
+}
+
+#addCollaboratorBtn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+#addCollaboratorBtn:hover {
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    transform: translateY(-1px);
+}
+
+.collaborator-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.collaborator-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.collaborator-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-color: #d1d5db;
+}
+
+.collaborator-card.collaborator-removing {
+    opacity: 0;
+    transform: translateX(-100%);
+    transition: all 0.3s ease;
+}
+
+.collaborator-avatar {
+    flex-shrink: 0;
+}
+
+.collaborator-avatar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.collaborator-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.collaborator-info h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 2px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.collaborator-info p {
+    font-size: 12px;
+    color: #6b7280;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.collaborator-role {
+    flex-shrink: 0;
+}
+
+.badge-role {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.collaborator-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.btn-collaborator-action {
+    background: transparent;
+    border: none;
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #6b7280;
+    transition: all 0.2s;
+}
+
+.btn-collaborator-action:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+.btn-remove:hover {
+    background: #fef2f2;
+    color: #991b1b;
+}
+
+/* Collaboration Toast */
+.collaboration-toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1f2937;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    z-index: 3000;
+    animation: toastIn 0.3s ease;
+}
+
+@keyframes toastIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* Form hint for invite modal */
+.form-hint {
+    display: block;
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 6px;
+    line-height: 1.4;
+}
+
+.form-hint strong {
+    color: #374151;
+}

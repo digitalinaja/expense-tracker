@@ -156,11 +156,7 @@ export class ApiHandler {
       throw new Error(result.error || 'Request failed')
     }
 
-    if (!result.data) {
-      throw new Error('No data in response')
-    }
-
-    return result.data
+    return result.data !== undefined ? result.data : (undefined as any)
   }
 
   /**
