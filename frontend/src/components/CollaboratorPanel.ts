@@ -182,7 +182,7 @@ export class CollaboratorPanel {
       projectNameEl.textContent = projectName || 'Project'
     }
 
-    const addBtn = this.modal?.querySelector('#addCollaboratorBtn')
+    const addBtn = this.modal?.querySelector('#addCollaboratorBtn') as HTMLElement
     if (addBtn) {
       addBtn.style.display = this.isOwner ? 'flex' : 'none'
     }
@@ -196,8 +196,8 @@ export class CollaboratorPanel {
    * Load collaborators from API
    */
   private async loadCollaborators(): Promise<void> {
-    const loadingEl = this.modal?.querySelector('#collaboratorLoading')
-    const errorEl = this.modal?.querySelector('#collaboratorError')
+    const loadingEl = this.modal?.querySelector('#collaboratorLoading') as HTMLElement
+    const errorEl = this.modal?.querySelector('#collaboratorError') as HTMLElement
 
     try {
       // Show loading
@@ -320,8 +320,7 @@ export class CollaboratorPanel {
    */
   private async handleChangeRole(userId: number, currentRole: 'editor' | 'viewer'): Promise<void> {
     const newRole: 'editor' | 'viewer' = currentRole === 'editor' ? 'viewer' : 'editor'
-    const card = this.listContainer?.querySelector(`.collaborator-card[data-user-id="${userId}"]`)
-    const errorEl = this.modal?.querySelector('#collaboratorError')
+    const errorEl = this.modal?.querySelector('#collaboratorError') as HTMLElement
 
     try {
       // Update role
@@ -355,8 +354,8 @@ export class CollaboratorPanel {
     const confirmed = confirm('Apakah Anda yakin ingin menghapus kolaborator ini dari project?')
     if (!confirmed) return
 
-    const card = this.listContainer?.querySelector(`.collaborator-card[data-user-id="${userId}"]`)
-    const errorEl = this.modal?.querySelector('#collaboratorError')
+    const card = this.listContainer?.querySelector(`.collaborator-card[data-user-id="${userId}"]`) as HTMLElement
+    const errorEl = this.modal?.querySelector('#collaboratorError') as HTMLElement
 
     try {
       // Remove collaborator
@@ -374,7 +373,7 @@ export class CollaboratorPanel {
         // Check if no more collaborators
         const remaining = this.listContainer?.querySelectorAll('.collaborator-card')
         if (!remaining || remaining.length === 0) {
-          const emptyEl = this.modal?.querySelector('#collaboratorEmpty')
+          const emptyEl = this.modal?.querySelector('#collaboratorEmpty') as HTMLElement
           if (emptyEl) {
             this.listContainer!.style.display = 'none'
             emptyEl.style.display = 'flex'
@@ -401,7 +400,7 @@ export class CollaboratorPanel {
    * Show error message
    */
   private showError(message: string): void {
-    const errorEl = this.modal?.querySelector('#collaboratorError')
+    const errorEl = this.modal?.querySelector('#collaboratorError') as HTMLElement
     if (errorEl) {
       errorEl.textContent = message
       errorEl.style.display = 'block'
@@ -433,7 +432,7 @@ export class CollaboratorPanel {
   /**
    * Check if current user is owner
    */
-  private async checkIsOwner(userId: number | undefined, projectId: number): Promise<boolean> {
+  private async checkIsOwner(_userId: number | undefined, _projectId: number): Promise<boolean> {
     // For now, assume owner. In production, check with backend
     // This would be handled by the access control in the API
     return true

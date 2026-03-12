@@ -66,7 +66,7 @@ export class AuthButton {
    * Update invitation badge
    */
   private updateInvitationBadge(count: number): void {
-    const badge = this.container?.querySelector('.invitation-badge')
+    const badge = this.container?.querySelector('.invitation-badge') as HTMLElement
     if (!badge) return
 
     if (count > 0) {

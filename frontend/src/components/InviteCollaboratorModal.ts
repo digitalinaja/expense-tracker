@@ -218,14 +218,14 @@ export class InviteCollaboratorModal {
    * Show error message
    */
   private showError(message: string): void {
-    const errorEl = this.modal?.querySelector('#inviteError')
+    const errorEl = this.modal?.querySelector('#inviteError') as HTMLElement
     if (errorEl) {
       errorEl.textContent = message
       errorEl.style.display = 'block'
     }
 
     // Hide success message
-    const successEl = this.modal?.querySelector('#inviteSuccess')
+    const successEl = this.modal?.querySelector('#inviteSuccess') as HTMLElement
     if (successEl) {
       successEl.style.display = 'none'
     }
@@ -235,14 +235,14 @@ export class InviteCollaboratorModal {
    * Show success message
    */
   private showSuccess(message: string): void {
-    const successEl = this.modal?.querySelector('#inviteSuccess')
+    const successEl = this.modal?.querySelector('#inviteSuccess') as HTMLElement
     if (successEl) {
       successEl.textContent = message
       successEl.style.display = 'block'
     }
 
     // Hide error message
-    const errorEl = this.modal?.querySelector('#inviteError')
+    const errorEl = this.modal?.querySelector('#inviteError') as HTMLElement
     if (errorEl) {
       errorEl.style.display = 'none'
     }
@@ -252,8 +252,8 @@ export class InviteCollaboratorModal {
    * Hide all messages
    */
   private hideMessages(): void {
-    const errorEl = this.modal?.querySelector('#inviteError')
-    const successEl = this.modal?.querySelector('#inviteSuccess')
+    const errorEl = this.modal?.querySelector('#inviteError') as HTMLElement
+    const successEl = this.modal?.querySelector('#inviteSuccess') as HTMLElement
 
     if (errorEl) errorEl.style.display = 'none'
     if (successEl) successEl.style.display = 'none'

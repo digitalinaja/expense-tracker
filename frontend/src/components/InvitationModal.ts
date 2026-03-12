@@ -131,10 +131,10 @@ export class InvitationModal {
    * Load invitations from API
    */
   private async loadInvitations(): Promise<void> {
-    const loadingEl = this.modal?.querySelector('#invitationLoading')
-    const errorEl = this.modal?.querySelector('#invitationError')
-    const listEl = this.modal?.querySelector('#invitationList')
-    const emptyEl = this.modal?.querySelector('#invitationEmpty')
+    const loadingEl = this.modal?.querySelector('#invitationLoading') as HTMLElement
+    const errorEl = this.modal?.querySelector('#invitationError') as HTMLElement
+    const listEl = this.modal?.querySelector('#invitationList') as HTMLElement
+    const emptyEl = this.modal?.querySelector('#invitationEmpty') as HTMLElement
 
     try {
       // Show loading
@@ -256,8 +256,8 @@ export class InvitationModal {
    * Handle accept invitation
    */
   private async handleAccept(invitationId: number): Promise<void> {
-    const card = this.listContainer?.querySelector(`.invitation-card[data-id="${invitationId}"]`)
-    const errorEl = this.modal?.querySelector('#invitationError')
+    const card = this.listContainer?.querySelector(`.invitation-card[data-id="${invitationId}"]`) as HTMLElement
+    const errorEl = this.modal?.querySelector('#invitationError') as HTMLElement
 
     try {
       // Disable buttons on the card
@@ -279,7 +279,7 @@ export class InvitationModal {
         // Check if no more invitations
         const remaining = this.listContainer?.querySelectorAll('.invitation-card')
         if (!remaining || remaining.length === 0) {
-          const emptyEl = this.modal?.querySelector('#invitationEmpty')
+          const emptyEl = this.modal?.querySelector('#invitationEmpty') as HTMLElement
           if (emptyEl) {
             this.listContainer!.style.display = 'none'
             emptyEl.style.display = 'flex'
@@ -312,8 +312,8 @@ export class InvitationModal {
    * Handle decline invitation
    */
   private async handleDecline(invitationId: number): Promise<void> {
-    const card = this.listContainer?.querySelector(`.invitation-card[data-id="${invitationId}"]`)
-    const errorEl = this.modal?.querySelector('#invitationError')
+    const card = this.listContainer?.querySelector(`.invitation-card[data-id="${invitationId}"]`) as HTMLElement
+    const errorEl = this.modal?.querySelector('#invitationError') as HTMLElement
 
     try {
       // Disable buttons on the card
@@ -335,7 +335,7 @@ export class InvitationModal {
         // Check if no more invitations
         const remaining = this.listContainer?.querySelectorAll('.invitation-card')
         if (!remaining || remaining.length === 0) {
-          const emptyEl = this.modal?.querySelector('#invitationEmpty')
+          const emptyEl = this.modal?.querySelector('#invitationEmpty') as HTMLElement
           if (emptyEl) {
             this.listContainer!.style.display = 'none'
             emptyEl.style.display = 'flex'
