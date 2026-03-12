@@ -86,8 +86,10 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('sync', (event) => {
   if (event.tag === 'sync-expenses') {
     event.waitUntil(
-      // Sync expenses with server
-      console.log('Background sync triggered')
+      (async () => {
+        // TODO: Implement actual sync logic with server
+        console.log('Background sync triggered');
+      })()
     );
   }
 });

@@ -81,7 +81,7 @@
         {
           "src": "/icons/icon-96x96.svg",
           "sizes": "96x96",
-          "type": "image/png"
+          "type": "image/svg+xml"
         }
       ]
     },
@@ -94,7 +94,7 @@
         {
           "src": "/icons/icon-96x96.svg",
           "sizes": "96x96",
-          "type": "image/png"
+          "type": "image/svg+xml"
         }
       ]
     }
