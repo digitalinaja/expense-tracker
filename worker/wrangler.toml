@@ -4,9 +4,13 @@ compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
 # Environment variables (shared across all environments)
+# Secrets are loaded from .dev.vars file for local development (gitignored)
+# For production: use `wrangler secret put JWT_SECRET --env production`
 vars = { ENVIRONMENT = "development" }
 
 [env.production]
+# Production secrets should be set via: wrangler secret put <SECRET_NAME> --env production
+# Never commit secrets to this file!
 vars = { ENVIRONMENT = "production" }
 
 # D1 Database binding
