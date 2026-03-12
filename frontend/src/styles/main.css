@@ -10,7 +10,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: #333;
     padding: 0;
     min-height: 100vh;
@@ -32,11 +32,13 @@ body {
 
 .container {
     max-width: 100%;
-    margin: 0;
-    background: transparent;
-    border-radius: 0;
-    box-shadow: none;
-    padding: 20px;
+    margin: 5px 5px;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    padding: 24px;
     animation: fadeIn 0.5s ease-in;
 }
 
@@ -96,19 +98,19 @@ body {
 }
 
 .nav-item:hover {
-    color: #667eea;
-    background: rgba(102, 126, 234, 0.1);
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
     border-radius: 8px;
 }
 
 .nav-item.active {
-    color: #667eea;
-    background: rgba(102, 126, 234, 0.1);
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
     border-radius: 8px;
 }
 
 .nav-item.active svg {
-    stroke: #667eea;
+    stroke: #10b981;
     transform: scale(1.1);
 }
 
@@ -118,10 +120,15 @@ body {
     }
 
     .container {
-        background: white;
-        border-radius: 16px 16px 0 0;
-        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-        padding: 30px;
+        max-width: 100%;
+        margin: 0;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 24px 24px 0 0;
+        box-shadow: 0 -4px 32px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-top: 1px solid rgba(255, 255, 255, 0.5);
+        padding: 40px;
     }
 }
 
@@ -130,6 +137,7 @@ body {
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -166,7 +174,7 @@ section {
 
 h2 {
     color: #2c3e50;
-    border-bottom: 3px solid #667eea;
+    border-bottom: 3px solid #10b981;
     padding-bottom: 10px;
     margin-bottom: 15px;
     font-size: 20px;
@@ -207,7 +215,7 @@ h2 {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     opacity: 0;
     transition: opacity 0.3s ease;
     z-index: -1;
@@ -215,13 +223,13 @@ h2 {
 
 .tab-btn:hover {
     color: #495057;
-    background: rgba(102, 126, 234, 0.1);
+    background: rgba(16, 185, 129, 0.1);
 }
 
 .tab-btn.active {
     color: white;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
 }
 
 .tab-btn.active::before {
@@ -246,6 +254,7 @@ h2 {
         opacity: 0;
         transform: translateX(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -253,15 +262,31 @@ h2 {
 }
 
 /* ============================================
-   Forms
+   Forms & Sections Constrain
    ============================================ */
 
+.page-header,
+.summary-section,
+.report-section,
 .input-section,
-.planning-section {
-    background: #f8f9fa;
+.planning-section,
+.history-section {
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.input-section,
+.planning-section,
+.history-section,
+.report-section {
+    background: rgba(255, 255, 255, 0.5);
     padding: 20px;
-    border-radius: 12px;
+    border-radius: 16px;
     margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
 }
 
 .tab-content h2 {
@@ -284,7 +309,7 @@ input[type="text"]:focus,
 input[type="number"]:focus,
 input[type="date"]:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #10b981;
 }
 
 input.error {
@@ -292,7 +317,7 @@ input.error {
 }
 
 button {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: white;
     border: none;
     padding: 12px 20px;
@@ -306,7 +331,7 @@ button {
 
 button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
 }
 
 button:active {
@@ -342,6 +367,7 @@ button:disabled {
         opacity: 0;
         transform: translateY(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -368,9 +394,19 @@ button:disabled {
 }
 
 @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    75% { transform: translateX(5px); }
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    75% {
+        transform: translateX(5px);
+    }
 }
 
 /* ============================================
@@ -378,11 +414,11 @@ button:disabled {
    ============================================ */
 
 .summary-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: white;
-    padding: 25px;
-    border-radius: 12px;
-    margin-bottom: 25px;
+    padding: 20px;
+    border-radius: 16px;
+    margin-bottom: 20px;
 }
 
 .summary-section h2 {
@@ -472,6 +508,7 @@ ul {
         opacity: 0;
         transform: translateX(-20px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -509,7 +546,7 @@ ul {
 
 .expense-item-amount,
 .planning-item-amount {
-    color: #667eea;
+    color: #10b981;
     font-weight: 600;
 }
 
@@ -589,14 +626,19 @@ ul {
     width: 50px;
     height: 50px;
     border: 5px solid #f3f3f3;
-    border-top: 5px solid #667eea;
+    border-top: 5px solid #10b981;
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* ============================================
@@ -604,13 +646,12 @@ ul {
    ============================================ */
 
 .report-section {
-    margin-bottom: 30px;
     animation: fadeIn 0.5s ease-in;
 }
 
 .report-section h2 {
     color: #2c3e50;
-    border-bottom: 3px solid #667eea;
+    border-bottom: 3px solid #10b981;
     padding-bottom: 10px;
     margin-bottom: 20px;
 }
@@ -782,7 +823,7 @@ ul {
     border-radius: 12px;
     font-size: 12px;
     font-weight: 600;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: white;
     white-space: nowrap;
 }
@@ -810,7 +851,7 @@ select {
 
 select:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #10b981;
 }
 
 select.error {
@@ -884,7 +925,8 @@ body.loading .loading-overlay {
         font-size: 18px;
     }
 
-    input, button {
+    input,
+    button {
         padding: 10px;
         font-size: 14px;
     }
@@ -956,8 +998,9 @@ body.loading .loading-overlay {
    ============================================ */
 
 .project-manager {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 56px 20px 12px 20px; /* Top padding to avoid overlap with auth button (fixed at top) */
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    padding: 56px 20px 12px 20px;
+    /* Top padding to avoid overlap with auth button (fixed at top) */
     margin-bottom: 0;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     position: relative;
@@ -1006,7 +1049,7 @@ body.loading .loading-overlay {
 
 .btn-add-project {
     background: white;
-    color: #667eea;
+    color: #10b981;
     padding: 10px;
     border: none;
     border-radius: 8px;
@@ -1059,6 +1102,7 @@ body.loading .loading-overlay {
         opacity: 0;
         transform: translate(-50%, -100px);
     }
+
     to {
         opacity: 1;
         transform: translate(-50%, 0);
@@ -1070,6 +1114,7 @@ body.loading .loading-overlay {
         opacity: 0;
         transform: translateX(100px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -1124,6 +1169,7 @@ body.loading .loading-overlay {
         opacity: 0;
         transform: translateY(50px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -1136,7 +1182,7 @@ body.loading .loading-overlay {
     align-items: center;
     padding: 20px 25px;
     border-bottom: 1px solid #e0e0e0;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     border-radius: 16px 16px 0 0;
 }
 
@@ -1195,7 +1241,7 @@ body.loading .loading-overlay {
 .form-group input:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #10b981;
 }
 
 .form-group textarea {
@@ -1232,7 +1278,7 @@ body.loading .loading-overlay {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
 }
 
 /* ============================================
@@ -1246,7 +1292,7 @@ body.loading .loading-overlay {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     z-index: 6000;
     align-items: center;
     justify-content: center;
@@ -1274,7 +1320,7 @@ body.loading .loading-overlay {
 .wizard-header {
     text-align: center;
     padding: 30px 30px 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     border-radius: 20px 20px 0 0;
     color: white;
 }
@@ -1313,10 +1359,10 @@ body.loading .loading-overlay {
 }
 
 .step-dot.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: white;
     transform: scale(1.2);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
 }
 
 .step-dot.completed {
@@ -1331,7 +1377,7 @@ body.loading .loading-overlay {
     transition: all 0.3s ease;
 }
 
-.step-dot.completed + .step-line {
+.step-dot.completed+.step-line {
     background: #2ecc71;
 }
 
@@ -1354,9 +1400,12 @@ body.loading .loading-overlay {
 }
 
 @keyframes bounce {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: translateY(0);
     }
+
     50% {
         transform: translateY(-10px);
     }
@@ -1412,7 +1461,7 @@ body.loading .loading-overlay {
 .wizard-body .form-group input:focus,
 .wizard-body .form-group textarea:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #10b981;
 }
 
 .wizard-body .form-group textarea {
@@ -1475,7 +1524,7 @@ body.loading .loading-overlay {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: white;
     display: flex;
     align-items: center;
@@ -1525,8 +1574,10 @@ body.loading .loading-overlay {
 .user-dropdown-item:hover {
     background: rgba(0, 0, 0, 0.02);
     color: #2c3e50;
-    transform: none; /* override base button hover */
-    box-shadow: none; /* override base button hover */
+    transform: none;
+    /* override base button hover */
+    box-shadow: none;
+    /* override base button hover */
 }
 
 .user-dropdown-item.logout {
@@ -1585,7 +1636,7 @@ body.loading .loading-overlay {
 .wizard-form input:focus,
 .wizard-form textarea:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #10b981;
 }
 
 .form-errors {
@@ -1613,8 +1664,15 @@ body.loading .loading-overlay {
 }
 
 @keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-20px); }
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
 }
 
 .next-steps {
@@ -1683,7 +1741,7 @@ body.loading .loading-overlay {
 
 .btn-wizard-back,
 .btn-wizard-next {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: white;
     padding: 10px 20px;
     border: none;
@@ -1697,7 +1755,7 @@ body.loading .loading-overlay {
 .btn-wizard-back:hover,
 .btn-wizard-next:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
 }
 
 /* Responsive */
@@ -1821,7 +1879,7 @@ body.loading .loading-overlay {
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: white;
     font-size: 12px;
     font-weight: 600;
@@ -1871,7 +1929,7 @@ body.loading .loading-overlay {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: white;
     font-size: 14px;
     font-weight: 600;
@@ -1962,6 +2020,7 @@ body.loading .loading-overlay {
         opacity: 0;
         transform: translateY(-20px) scale(0.95);
     }
+
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -2160,7 +2219,7 @@ body.loading .loading-overlay {
 }
 
 .btn-add-project-compact {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: white;
     border: none;
     width: 24px;
@@ -2229,14 +2288,15 @@ body.loading .loading-overlay {
     height: 28px;
     border-radius: 50%;
     object-fit: cover;
-    display: block; /* Ensure it is not hidden */
+    display: block;
+    /* Ensure it is not hidden */
 }
 
 .auth-button-compact .user-avatar-initials {
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: white;
     display: flex;
     align-items: center;
@@ -2249,7 +2309,8 @@ body.loading .loading-overlay {
     font-size: 13px;
     font-weight: 600;
     color: #2c3e50;
-    display: block; /* Show name by default inside new header */
+    display: block;
+    /* Show name by default inside new header */
     margin: 0 4px;
 }
 

@@ -67,7 +67,6 @@ export class AuthButton {
             ` : `
               <span class="user-avatar-initials">${userInitials}</span>
             `}
-            <span class="user-name">${user.name}</span>
             <svg class="dropdown-icon" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor">
               <path d="M2 4l4 4 4-4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
