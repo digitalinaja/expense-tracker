@@ -3,6 +3,7 @@ import { authModal } from './AuthModal'
 import { authService } from '../services/AuthService'
 import { collaborationStore } from '../stores/CollaborationStore'
 import { invitationModal } from './InvitationModal'
+import { settingsModal } from './SettingsModal'
 import type { User } from '../types'
 
 /**
@@ -264,8 +265,7 @@ export class AuthButton {
    */
   handleSettings(): void {
     this.toggleMenu()
-    // TODO: Navigate to settings page
-    console.log('Settings clicked')
+    settingsModal.show()
   }
 
   /**

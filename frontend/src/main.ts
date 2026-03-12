@@ -18,9 +18,13 @@ import { invitationModal } from './components/InvitationModal'
 import { inviteCollaboratorModal } from './components/InviteCollaboratorModal'
 import { collaboratorPanel } from './components/CollaboratorPanel'
 import { collaborationStore } from './stores/CollaborationStore'
+import { settingsModal } from './components/SettingsModal'
 
 // Import ProjectManager for side-effect (auto-initialization)
 import './components/ProjectManager'
+
+// Initialize PWA service
+import './services/PwaService'
 
 // Make projectForm globally available for HTML onclick handlers
 ;(window as any).projectForm = projectForm
@@ -33,6 +37,9 @@ import './components/ProjectManager'
 ;(window as any).invitationModal = invitationModal
 ;(window as any).inviteCollaboratorModal = inviteCollaboratorModal
 ;(window as any).collaboratorPanel = collaboratorPanel
+
+// Make settingsModal globally available
+;(window as any).settingsModal = settingsModal
 
 /**
  * Main application entry point
