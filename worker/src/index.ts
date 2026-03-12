@@ -47,7 +47,12 @@ app.get('/', (c) => {
   })
 })
 
-// Public routes (no authentication required)
+// Public routes (no authentication required except for /me)
+app.use('/api/auth/me', async (c, next) => {
+  const authService = new AuthService(c.env.DB, c.env)
+  const middleware = createAuthMiddleware(authService)
+  return middleware(c, next)
+})
 app.route('/api/auth', authRouter)
 
 // Protected routes (authentication required)

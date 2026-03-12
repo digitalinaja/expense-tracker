@@ -55,16 +55,10 @@ export class AuthService {
         headers: this.getAuthHeaders()
       })
 
-      const result: ApiResponse<{ id: number; email: string }> = await response.json()
+      const result: ApiResponse<User> = await response.json()
 
       if (result.success && result.data) {
-        // Get full user data from store
-        const user = authStore.getUser()
-        if (!user || user.id !== result.data.id) {
-          throw new Error('User mismatch')
-        }
-
-        return user
+        return result.data
       }
 
       throw new Error(result.error || 'Failed to fetch user info')

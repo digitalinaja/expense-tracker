@@ -86,6 +86,14 @@ class App {
         })
 
         return
+      } else {
+        // Refresh local user info from backend automatically
+        try {
+          const updatedUser = await import('./services/AuthService').then(m => m.authService.getCurrentUser())
+          authStore.updateUser(updatedUser)
+        } catch (err) {
+          console.warn('Failed to refresh user info in background', err)
+        }
       }
 
       // STEP 1: Load projects first

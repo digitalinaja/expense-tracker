@@ -14,33 +14,40 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- Auth Button Container -->
-        <div id="auth-button-container" style="position: fixed; top: 16px; right: 16px; z-index: 1000;"></div>
-
-        <!-- Project Manager -->
-        <div class="project-manager" id="projectManager">
-            <div class="project-manager-container">
-                <div class="project-header">
-                    <select id="projectDropdown" class="project-dropdown">
+        <!-- Top Navigation -->
+        <nav class="top-nav">
+            <div class="top-nav-left">
+                <div class="app-brand">
+                    <span class="app-icon">💰</span>
+                    <span class="app-title">Tracker</span>
+                </div>
+            </div>
+            <div class="top-nav-right">
+                <!-- Project Manager -->
+                <div class="project-manager-compact" id="projectManager">
+                    <select id="projectDropdown" class="project-dropdown compact-dropdown">
                         <option value="">Loading projects...</option>
                     </select>
-                    <button id="addProjectBtn" class="btn-add-project" title="Create New Project">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <button id="addProjectBtn" class="btn-add-project-compact" title="Create New Project">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="12" y1="5" x2="12" y2="19"></line>
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                         </svg>
                     </button>
                 </div>
+                
+                <!-- Auth Button Container -->
+                <div id="auth-button-container" class="auth-button-compact"></div>
             </div>
-        </div>
+        </nav>
 
         <div class="container">
             <!-- Dashboard Page -->
             <div class="page active" id="page-dashboard">
-                <header>
-                    <h1>Tracker Pengeluaran</h1>
-                    <p>Atur dan catat pengeluaran Anda</p>
-                </header>
+                <div class="page-header">
+                    <h2>Dashboard</h2>
+                    <p>Ringkasan keuangan Anda</p>
+                </div>
 
                 <!-- Summary Section -->
                 <div class="summary-section">
@@ -70,10 +77,10 @@
 
             <!-- Add Expense Page -->
             <div class="page" id="page-add-expense">
-                <header>
-                    <h1>Tambah Pengeluaran</h1>
+                <div class="page-header">
+                    <h2>Tambah Pengeluaran</h2>
                     <p>Catat pengeluaran harian Anda</p>
-                </header>
+                </div>
 
                 <div class="input-section">
                     <form id="expenseForm">
@@ -87,10 +94,10 @@
 
             <!-- Planning Page -->
             <div class="page" id="page-add-planning">
-                <header>
-                    <h1>Perencanaan</h1>
+                <div class="page-header">
+                    <h2>Perencanaan</h2>
                     <p>Rencanakan dan kelola pengeluaran Anda</p>
-                </header>
+                </div>
 
                 <div class="input-section planning-section">
                     <div class="tabs">
@@ -124,10 +131,10 @@
 
             <!-- History Page -->
             <div class="page" id="page-history">
-                <header>
-                    <h1>Riwayat Pengeluaran</h1>
+                <div class="page-header">
+                    <h2>Riwayat Pengeluaran</h2>
                     <p>Lihat semua pengeluaran yang sudah tercatat</p>
-                </header>
+                </div>
 
                 <div class="history-section">
                     <ul id="expenseList"></ul>

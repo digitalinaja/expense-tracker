@@ -32,10 +32,12 @@ export class AuthService {
   private userQueries: UserQueries
   private jwtSecret: string
   private googleClient: OAuth2Client
+  private googleClientId: string
 
   constructor(db: D1Database, env: any) {
     this.userQueries = new UserQueries(db)
     this.jwtSecret = env.JWT_SECRET || 'your-secret-key-change-this-in-production'
+    this.googleClientId = env.GOOGLE_CLIENT_ID
 
     // Initialize Google OAuth client
     this.googleClient = new OAuth2Client(
@@ -52,7 +54,7 @@ export class AuthService {
       // Verify the Google ID token
       const ticket = await this.googleClient.verifyIdToken({
         idToken,
-        audience: this.googleClient.clientId_
+        audience: this.googleClientId
       })
 
       const payload = ticket.getPayload()
@@ -219,5 +221,12 @@ export class AuthService {
     } catch (error) {
       return null
     }
+  }
+
+  /**
+   * Get full user object by ID
+   */
+  async getUserById(id: number) {
+    return await this.userQueries.getById(id)
   }
 }

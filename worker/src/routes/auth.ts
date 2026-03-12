@@ -78,7 +78,7 @@ authRouter.get('/google/callback', async (c) => {
       return c.redirect(`${redirectUri}?error=token_exchange_failed`)
     }
 
-    const tokenData = await tokenResponse.json()
+    const tokenData = await tokenResponse.json() as { access_token: string }
 
     // Get user info from Google
     const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
@@ -92,7 +92,7 @@ authRouter.get('/google/callback', async (c) => {
       return c.redirect(`${redirectUri}?error=userinfo_failed`)
     }
 
-    const googleUser = await userInfoResponse.json()
+    const googleUser = await userInfoResponse.json() as { id: string; email: string; name: string; picture: string }
 
     // Create or update user in database
     const authService = new AuthService(c.env.DB, c.env)
@@ -217,20 +217,32 @@ authRouter.post('/refresh', async (c) => {
 authRouter.get('/me', async (c) => {
   try {
     // Get user from context (set by auth middleware)
-    const user = c.get('user')
+    const contextUser = c.get('user')
 
-    if (!user) {
+    if (!contextUser) {
       return c.json({
         success: false,
         error: 'Not authenticated'
       }, 401)
     }
 
+    const authService = new AuthService(c.env.DB, c.env)
+    const user = await authService.getUserById(contextUser.userId)
+
+    if (!user) {
+      return c.json({
+        success: false,
+        error: 'User not found in database'
+      }, 404)
+    }
+
     return c.json({
       success: true,
       data: {
         id: user.id,
-        email: user.email
+        email: user.email,
+        name: user.name,
+        avatar_url: user.avatar_url
       }
     })
   } catch (error) {
