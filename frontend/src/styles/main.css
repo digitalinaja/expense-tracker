@@ -494,7 +494,7 @@ ul {
 
 .expense-item,
 .planning-item {
-    padding: 16px;
+    padding: 10px 12px;
     border-bottom: 1px solid #eee;
     display: flex;
     justify-content: space-between;
@@ -528,13 +528,15 @@ ul {
 .expense-item-content,
 .planning-item-content {
     flex: 1;
+    min-width: 0; /* Prevent flex blowout */
+    margin-right: 12px;
 }
 
 .expense-item-name,
 .planning-item-name {
     font-weight: 600;
     color: #2c3e50;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
 }
 
 .expense-item-details,
@@ -557,20 +559,28 @@ ul {
 
 .expense-item-delete,
 .planning-item-delete {
-    background: #e74c3c;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
+    background: transparent;
+    color: #e74c3c;
+    border: 1px solid #e74c3c;
+    padding: 0;
+    border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
-    width: auto;
-    transition: background 0.2s;
+    width: 32px !important;
+    height: 32px !important;
+    flex: 0 0 32px; /* Force flex item to be exactly 32px wide */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
 }
 
 .expense-item-delete:hover,
 .planning-item-delete:hover {
-    background: #c0392b;
+    background: #e74c3c;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(231, 76, 60, 0.2);
 }
 
 /* ============================================
@@ -933,14 +943,14 @@ body.loading .loading-overlay {
 
     .expense-item,
     .planning-item {
-        flex-direction: column;
-        align-items: flex-start;
+        flex-direction: row;
+        align-items: center;
         gap: 10px;
     }
 
     .expense-item-delete,
     .planning-item-delete {
-        width: 100%;
+        width: 32px !important; /* Keep it compact */
     }
 
     .summary-section {
