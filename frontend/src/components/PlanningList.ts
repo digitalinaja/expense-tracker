@@ -4,14 +4,16 @@ import type { Planning } from '../types'
 
 /**
  * Planning List Component
- * Displays list of planning items with delete functionality
+ * Displays list of planning items with edit and delete functionality
  */
 export class PlanningList {
   private listElement: HTMLUListElement
   private unsubscribe: (() => void) | null = null
+  private onEditCallback?: (planning: Planning) => void
 
-  constructor() {
+  constructor(onEditCallback?: (planning: Planning) => void) {
     this.listElement = document.getElementById('planningList') as HTMLUListElement
+    this.onEditCallback = onEditCallback
   }
 
   /**
@@ -92,6 +94,18 @@ export class PlanningList {
     content.appendChild(name)
     content.appendChild(details)
 
+    // Create action buttons container
+    const actionButtons = document.createElement('div')
+    actionButtons.className = 'planning-item-actions'
+
+    // Create edit button
+    const editButton = document.createElement('button')
+    editButton.className = 'planning-item-edit icon-btn'
+    editButton.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>`
+    editButton.title = 'Edit'
+    editButton.type = 'button'
+    editButton.onclick = () => this.handleEdit(planning)
+
     // Create delete button
     const deleteButton = document.createElement('button')
     deleteButton.className = 'planning-item-delete icon-btn'
@@ -100,10 +114,22 @@ export class PlanningList {
     deleteButton.type = 'button'
     deleteButton.onclick = () => this.handleDelete(planning.id!)
 
+    actionButtons.appendChild(editButton)
+    actionButtons.appendChild(deleteButton)
+
     li.appendChild(content)
-    li.appendChild(deleteButton)
+    li.appendChild(actionButtons)
 
     return li
+  }
+
+  /**
+   * Handle edit planning item
+   */
+  private handleEdit(planning: Planning): void {
+    if (this.onEditCallback) {
+      this.onEditCallback(planning)
+    }
   }
 
   /**

@@ -583,6 +583,39 @@ ul {
     box-shadow: 0 4px 10px rgba(231, 76, 60, 0.2);
 }
 
+/* Planning item actions container */
+.planning-item-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex: 0 0 auto;
+}
+
+/* Planning item edit button */
+.planning-item-edit {
+    background: transparent;
+    color: #3498db;
+    border: 1px solid #3498db;
+    padding: 0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    width: 32px !important;
+    height: 32px !important;
+    flex: 0 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.planning-item-edit:hover {
+    background: #3498db;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(52, 152, 219, 0.2);
+}
+
 /* ============================================
    Empty State
    ============================================ */
@@ -951,6 +984,14 @@ body.loading .loading-overlay {
     .expense-item-delete,
     .planning-item-delete {
         width: 32px !important; /* Keep it compact */
+    }
+
+    .planning-item-edit {
+        width: 32px !important; /* Keep it compact */
+    }
+
+    .planning-item-actions {
+        gap: 6px; /* Reduce gap on mobile */
     }
 
     .summary-section {
@@ -2440,6 +2481,12 @@ body.loading .loading-overlay {
     align-items: center;
     color: #10b981;
     margin-left: 15px;
+    transition: all 0.2s;
+}
+
+.setting-action[onclick]:hover {
+    color: #ef4444;
+    transform: scale(1.1);
 }
 
 .setting-item-action .setting-action svg {

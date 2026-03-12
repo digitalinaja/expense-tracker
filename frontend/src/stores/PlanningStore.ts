@@ -111,7 +111,7 @@ export class PlanningStore {
   /**
    * Update planning item
    */
-  async update(id: number, data: Partial<Planning>): Promise<void> {
+  async update(id: number, data: Partial<Planning> & { project_id: number }): Promise<void> {
     this.loading = true
     this.error = null
     this.notify()

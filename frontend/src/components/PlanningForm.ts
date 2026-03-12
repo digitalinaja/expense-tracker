@@ -2,10 +2,11 @@ import { getTodayDate } from '../utils/formatters'
 import { validateExpenseFormData } from '../utils/validators'
 import { planningStore } from '../stores/PlanningStore'
 import { projectStore } from '../stores/ProjectStore'
+import type { Planning } from '../types'
 
 /**
  * Planning Form Component
- * Handles adding new planning items
+ * Handles adding and editing planning items
  */
 export class PlanningForm {
   private form: HTMLFormElement
@@ -13,6 +14,7 @@ export class PlanningForm {
   private amountInput: HTMLInputElement
   private dateInput: HTMLInputElement
   private submitButton: HTMLButtonElement
+  private editingId: number | null = null
 
   constructor() {
     // Get form element
@@ -58,23 +60,33 @@ export class PlanningForm {
     this.setLoading(true)
 
     try {
-      // Add planning through store with current project_id
-      await planningStore.add({
-        name,
-        amount,
-        date,
-        project_id: currentProjectId
-      })
+      if (this.editingId) {
+        // Update existing planning
+        await planningStore.update(this.editingId, {
+          name,
+          amount,
+          date,
+          project_id: currentProjectId
+        })
+        this.showSuccess('Perencanaan berhasil diperbarui!')
+      } else {
+        // Add new planning through store with current project_id
+        await planningStore.add({
+          name,
+          amount,
+          date,
+          project_id: currentProjectId
+        })
+        this.showSuccess('Perencanaan berhasil ditambahkan!')
+      }
 
       // Reset form
-      this.form.reset()
-      this.dateInput.value = getTodayDate()
-
-      // Show success message
-      this.showSuccess('Perencanaan berhasil ditambahkan!')
+      this.reset()
     } catch (error) {
       // Show error message
-      this.showError('Gagal menambahkan perencanaan. Silakan coba lagi.')
+      this.showError(this.editingId
+        ? 'Gagal memperbarui perencanaan. Silakan coba lagi.'
+        : 'Gagal menambahkan perencanaan. Silakan coba lagi.')
     } finally {
       // Re-enable submit button
       this.setLoading(false)
@@ -158,5 +170,29 @@ export class PlanningForm {
     this.form.reset()
     this.dateInput.value = getTodayDate()
     this.clearErrors()
+    this.editingId = null
+    this.setLoading(false)
+    this.submitButton.textContent = 'Tambah Perencanaan'
+  }
+
+  /**
+   * Set form to edit mode with planning data
+   */
+  edit(planning: Planning): void {
+    this.editingId = planning.id || null
+    this.nameInput.value = planning.name
+    this.amountInput.value = String(planning.amount)
+    this.dateInput.value = planning.date
+    this.submitButton.textContent = 'Update Perencanaan'
+    this.clearErrors()
+
+    // Switch to the add tab if not already active
+    const addTab = document.querySelector('[data-tab="planning-add"]') as HTMLElement
+    if (addTab) {
+      addTab.click()
+    }
+
+    // Focus on first input
+    this.nameInput.focus()
   }
 }

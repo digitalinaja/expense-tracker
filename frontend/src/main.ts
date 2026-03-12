@@ -47,6 +47,7 @@ import './services/PwaService'
 class App {
   private expenseList: ExpenseList
   private planningList: PlanningList
+  private planningForm: PlanningForm
   private summary: Summary
   private reportSection: ReportSection
   private navigationManager: NavigationManager
@@ -62,9 +63,9 @@ class App {
 
     // Initialize components
     new ExpenseForm()
-    new PlanningForm()
+    this.planningForm = new PlanningForm()
     this.expenseList = new ExpenseList()
-    this.planningList = new PlanningList()
+    this.planningList = new PlanningList((planning) => this.planningForm.edit(planning))
     this.summary = new Summary()
     this.reportSection = new ReportSection()
 

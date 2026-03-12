@@ -13,6 +13,117 @@ export class SettingsModal {
   }
 
   /**
+   * Get install button HTML based on installation status
+   */
+  private getInstallButton(): string {
+    const isInstalled = pwaService.isAppInstalled()
+    const canInstall = pwaService.canInstall()
+    const deviceInfo = pwaService.getDeviceInfo()
+
+    if (isInstalled) {
+      return `
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-title">Status Instalasi</div>
+                <div class="setting-description">Aplikasi sudah terinstal di ${deviceInfo.platform}</div>
+              </div>
+              <div class="setting-badge">
+                <span class="badge badge-success">Terinstal</span>
+              </div>
+            </div>
+      `
+    }
+
+    if (canInstall) {
+      return `
+            <div class="setting-item setting-item-action" onclick="settingsModal.handleInstall()">
+              <div class="setting-info">
+                <div class="setting-title">Instal Aplikasi</div>
+                <div class="setting-description">Pasang aplikasi di perangkat Anda</div>
+              </div>
+              <div class="setting-action">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+              </div>
+            </div>
+      `
+    }
+
+    return `
+            <div class="setting-item setting-item-action" onclick="settingsModal.handleInstall()">
+              <div class="setting-info">
+                <div class="setting-title">Cara Instalasi</div>
+                <div class="setting-description">Lihat panduan instalasi untuk ${deviceInfo.platform}</div>
+              </div>
+              <div class="setting-action">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+              </div>
+            </div>
+    `
+  }
+
+  /**
+   * Format bytes to human readable format
+   */
+  private formatBytes(bytes: number): string {
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i]
+  }
+
+  /**
+   * Estimate cache size
+   */
+  private async estimateCacheSize(): Promise<string> {
+    if ('storage' in navigator && 'estimate' in navigator.storage) {
+      try {
+        const estimate = await navigator.storage.estimate()
+        if (estimate.usage !== undefined) {
+          return this.formatBytes(estimate.usage)
+        }
+      } catch (error) {
+        console.error('Error estimating cache size:', error)
+      }
+    }
+    return 'Tidak diketahui'
+  }
+
+  /**
+   * Clear cache
+   */
+  async clearCache(): Promise<void> {
+    if ('caches' in window) {
+      try {
+        const cacheNames = await caches.keys()
+        await Promise.all(
+          cacheNames.map(cacheName => caches.delete(cacheName))
+        )
+        this.showNotification('Cache berhasil dibersihkan!', 'success')
+
+        // Update cache size display
+        if (this.modal) {
+          const cacheSizeEl = this.modal.querySelector('#cacheSize')
+          if (cacheSizeEl) {
+            cacheSizeEl.textContent = '0 Bytes'
+          }
+        }
+      } catch (error) {
+        console.error('Error clearing cache:', error)
+        this.showNotification('Gagal membersihkan cache', 'error')
+      }
+    }
+  }
+
+  /**
    * Create modal elements
    */
   private createModal(): void {
@@ -39,22 +150,29 @@ export class SettingsModal {
 
             <div class="setting-item">
               <div class="setting-info">
-                <div class="setting-title">Versi</div>
+                <div class="setting-title">Versi Aplikasi</div>
                 <div class="setting-description">v1.0.0</div>
               </div>
             </div>
 
-            <div class="setting-item setting-item-action" onclick="settingsModal.handleInstall()">
+            <div class="setting-item">
               <div class="setting-info">
-                <div class="setting-title">Instal Aplikasi</div>
-                <div class="setting-description">Pasang aplikasi di perangkat Anda</div>
+                <div class="setting-title">Cache Storage</div>
+                <div class="setting-description" id="cacheSize">Menghitung...</div>
               </div>
-              <div class="setting-action">
+              <div class="setting-action" onclick="settingsModal.clearCache()" style="cursor: pointer;" title="Bersihkan Cache">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                  <polyline points="7 10 12 15 17 10"/>
-                  <line x1="12" y1="15" x2="12" y2="3"/>
+                  <path d="M3 6h18"/>
+                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
                 </svg>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-title">Platform</div>
+                <div class="setting-description" id="platformInfo">-</div>
               </div>
             </div>
 
@@ -67,6 +185,8 @@ export class SettingsModal {
                 <span class="badge badge-success">Aktif</span>
               </div>
             </div>
+
+            ${this.getInstallButton()}
           </div>
 
           <div class="settings-divider"></div>
@@ -165,7 +285,7 @@ export class SettingsModal {
   /**
    * Show modal
    */
-  show(): void {
+  async show(): Promise<void> {
     if (this.modal) {
       // Update user info before showing
       const settingsSection = this.modal.querySelector('.settings-section:nth-child(2)')
@@ -174,6 +294,43 @@ export class SettingsModal {
           <h3>Akun</h3>
           ${this.getUserInfo()}
         `
+      }
+
+      // Update cache size
+      const cacheSizeEl = this.modal.querySelector('#cacheSize')
+      if (cacheSizeEl) {
+        const size = await this.estimateCacheSize()
+        cacheSizeEl.textContent = size
+      }
+
+      // Update platform info
+      const platformEl = this.modal.querySelector('#platformInfo')
+      if (platformEl) {
+        const deviceInfo = pwaService.getDeviceInfo()
+        platformEl.textContent = `${deviceInfo.platform}${deviceInfo.isMobile ? ' (Mobile)' : ''}`
+      }
+
+      // Update install button status
+      const appSettingsSection = this.modal.querySelector('.settings-section:first-child')
+      if (appSettingsSection) {
+        const installButtonContainer = appSettingsSection.querySelector('.setting-item:last-child')
+        if (installButtonContainer && installButtonContainer.classList.contains('setting-item-action')) {
+          installButtonContainer.remove()
+        }
+
+        // Check if we need to add or update install button
+        const hasInstallStatus = Array.from(appSettingsSection.children).some(child =>
+          child.textContent && child.textContent.includes('Status Instalasi')
+        )
+
+        if (!hasInstallStatus) {
+          const tempDiv = document.createElement('div')
+          tempDiv.innerHTML = this.getInstallButton()
+          const newInstallButton = tempDiv.firstElementChild
+          if (newInstallButton) {
+            appSettingsSection.appendChild(newInstallButton)
+          }
+        }
       }
 
       this.modal.style.display = 'flex'
