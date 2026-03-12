@@ -19,13 +19,6 @@ function subscribeToRefresh(callback: (token: string) => void) {
 }
 
 /**
- * Unsubscribe dari token refresh completion
- */
-function unsubscribeFromRefresh(callback: (token: string) => void) {
-  refreshSubscribers = refreshSubscribers.filter(cb => cb !== callback)
-}
-
-/**
  * Notify semua subscribers bahwa token sudah di-refresh
  */
 function onRefreshed(token: string) {
