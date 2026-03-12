@@ -1,103 +1,48 @@
-import type { User, AuthResponse, ApiResponse } from '../types'
+import type { User, AuthResponse } from '../types'
 import { authStore } from '../stores/AuthStore'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL : '/api'
+import { apiHandler } from './ApiHandler'
 
 /**
  * Service untuk authentication via API
+ * Menggunakan centralized ApiHandler untuk automatic token refresh
  */
 export class AuthService {
-  private baseUrl: string
-
-  constructor() {
-    this.baseUrl = `${API_BASE_URL}/auth`
-  }
-
   /**
    * Sign in with Google
    */
   async signInWithGoogle(idToken: string): Promise<AuthResponse> {
-    try {
-      const response = await fetch(`${this.baseUrl}/google`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ idToken })
-      })
+    const result = await apiHandler.postUnauth<AuthResponse>('/auth/google', { idToken })
 
-      const result: ApiResponse<AuthResponse> = await response.json()
+    // Update auth store
+    await authStore.login(
+      result.user,
+      result.token,
+      result.refreshToken
+    )
 
-      if (result.success && result.data) {
-        // Update auth store
-        await authStore.login(
-          result.data.user,
-          result.data.token,
-          result.data.refreshToken
-        )
-
-        return result.data
-      }
-
-      throw new Error(result.error || 'Authentication failed')
-    } catch (error) {
-      console.error('Error signing in with Google:', error)
-      throw error
-    }
+    return result
   }
 
   /**
    * Get current user info
    */
   async getCurrentUser(): Promise<User> {
-    try {
-      const response = await fetch(`${this.baseUrl}/me`, {
-        headers: this.getAuthHeaders()
-      })
-
-      const result: ApiResponse<User> = await response.json()
-
-      if (result.success && result.data) {
-        return result.data
-      }
-
-      throw new Error(result.error || 'Failed to fetch user info')
-    } catch (error) {
-      console.error('Error fetching current user:', error)
-      throw error
-    }
+    return apiHandler.get<User>('/auth/me')
   }
 
   /**
    * Refresh access token
    */
   async refreshToken(refreshToken: string): Promise<AuthResponse> {
-    try {
-      const response = await fetch(`${this.baseUrl}/refresh`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ refreshToken })
-      })
+    const result = await apiHandler.postUnauth<AuthResponse>('/auth/refresh', { refreshToken })
 
-      const result: ApiResponse<AuthResponse> = await response.json()
+    // Update auth store with new token
+    authStore.updateToken(
+      result.token,
+      result.refreshToken
+    )
 
-      if (result.success && result.data) {
-        // Update auth store with new token
-        authStore.updateToken(
-          result.data.token,
-          result.data.refreshToken
-        )
-
-        return result.data
-      }
-
-      throw new Error(result.error || 'Failed to refresh token')
-    } catch (error) {
-      console.error('Error refreshing token:', error)
-      throw error
-    }
+    return result
   }
 
   /**
@@ -105,22 +50,11 @@ export class AuthService {
    */
   async logout(): Promise<void> {
     try {
-      const response = await fetch(`${this.baseUrl}/logout`, {
-        method: 'POST',
-        headers: this.getAuthHeaders()
-      })
-
-      const result: ApiResponse<void> = await response.json()
-
-      // Always logout locally, even if API call fails
-      authStore.logout()
-
-      if (!result.success) {
-        console.warn('Logout API call failed:', result.error)
-      }
+      await apiHandler.post<void>('/auth/logout')
     } catch (error) {
-      console.error('Error during logout:', error)
-      // Still logout locally
+      console.warn('Logout API call failed:', error)
+    } finally {
+      // Always logout locally, even if API call fails
       authStore.logout()
     }
   }
@@ -133,7 +67,7 @@ export class AuthService {
   }
 
   /**
-   * Get auth headers for API requests
+   * Get auth headers for API requests (legacy method - mostly not needed anymore)
    */
   getAuthHeaders(): Record<string, string> {
     return authStore.getAuthHeaders()

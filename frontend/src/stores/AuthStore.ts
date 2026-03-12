@@ -1,4 +1,5 @@
 import type { User, AuthState } from '../types'
+import { isTokenExpired } from '../utils/jwt'
 
 /**
  * Store untuk authentication state management
@@ -18,6 +19,20 @@ export class AuthStore {
   constructor() {
     // Restore auth state from localStorage on init
     this.restoreFromStorage()
+
+    // Check jika token expired pada init
+    this.checkTokenExpiration()
+  }
+
+  /**
+   * Check jika access token expired
+   */
+  private checkTokenExpiration(): void {
+    if (this.token && isTokenExpired(this.token)) {
+      console.log('Access token expired on init')
+      this.error = 'Session expired'
+      // Token will be refreshed by ApiHandler on first API call
+    }
   }
 
   /**
@@ -223,6 +238,15 @@ export class AuthStore {
    */
   clear(): void {
     this.logout()
+  }
+
+  /**
+   * Check jika user perlu login ulang (kedua token expired)
+   */
+  needsReauthentication(): boolean {
+    const accessExpired = !this.token || isTokenExpired(this.token)
+    const refreshExpired = !this.refreshToken || isTokenExpired(this.refreshToken)
+    return accessExpired && refreshExpired
   }
 }
 
