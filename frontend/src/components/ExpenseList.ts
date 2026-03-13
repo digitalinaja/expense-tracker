@@ -1,6 +1,7 @@
 import { formatCurrency, formatDate } from '../utils/formatters'
 import { expenseStore } from '../stores/ExpenseStore'
-import type { Expense } from '../types'
+import { attachmentService } from '../services/AttachmentService'
+import type { Expense, Attachment } from '../types'
 
 /**
  * Expense List Component
@@ -9,6 +10,7 @@ import type { Expense } from '../types'
 export class ExpenseList {
   private listElement: HTMLUListElement
   private unsubscribe: (() => void) | null = null
+  private expenseAttachments: Map<number, Attachment[]> = new Map()
 
   constructor() {
     this.listElement = document.getElementById('expenseList') as HTMLUListElement
@@ -47,6 +49,110 @@ export class ExpenseList {
       const listItem = this.createExpenseItem(expense)
       this.listElement.appendChild(listItem)
     })
+
+    // Load attachments for each expense
+    this.loadAttachments(expenses)
+  }
+
+  /**
+   * Load attachments for expenses
+   */
+  private async loadAttachments(expenses: Expense[]): Promise<void> {
+    for (const expense of expenses) {
+      if (expense.id) {
+        try {
+          const attachments = await attachmentService.getByExpenseId(expense.id)
+          this.expenseAttachments.set(expense.id, attachments)
+
+          // Update the expense item with attachment thumbnails
+          this.updateExpenseAttachments(expense.id, attachments)
+        } catch (error) {
+          console.error('Failed to load attachments:', error)
+        }
+      }
+    }
+  }
+
+  /**
+   * Update expense item with attachment thumbnails
+   */
+  private updateExpenseAttachments(expenseId: number, attachments: Attachment[]): void {
+    const expenseItem = this.listElement.querySelector(`[data-id="${expenseId}"]`)
+    if (!expenseItem) return
+
+    const existingAttachments = expenseItem.querySelector('.expense-attachments')
+    if (existingAttachments) {
+      existingAttachments.remove()
+    }
+
+    if (attachments.length === 0) return
+
+    const attachmentsContainer = document.createElement('div')
+    attachmentsContainer.className = 'expense-attachments'
+
+    attachments.forEach(attachment => {
+      const thumbnail = document.createElement('div')
+      thumbnail.className = 'expense-attachment-thumbnail'
+      thumbnail.title = attachment.original_file_name
+
+      const img = document.createElement('img')
+      img.alt = attachment.original_file_name
+      img.loading = 'lazy'
+
+      // Fetch image with auth headers (img.src can't send Authorization header)
+      attachmentService.getFileBlobUrl(attachment.id!).then(blobUrl => {
+        img.src = blobUrl
+      }).catch(err => {
+        console.error('Failed to load attachment image:', err)
+        img.alt = '❌ ' + attachment.original_file_name
+      })
+
+      img.onclick = () => {
+        if (img.src) this.showLightbox(img.src)
+      }
+
+      thumbnail.appendChild(img)
+      attachmentsContainer.appendChild(thumbnail)
+    })
+
+    const content = expenseItem.querySelector('.expense-item-content')
+    if (content) {
+      content.appendChild(attachmentsContainer)
+    }
+  }
+
+  /**
+   * Show image lightbox
+   */
+  private showLightbox(src: string): void {
+    // Remove existing lightbox
+    const existingLightbox = document.querySelector('.image-lightbox')
+    if (existingLightbox) {
+      existingLightbox.remove()
+    }
+
+    const lightbox = document.createElement('div')
+    lightbox.className = 'image-lightbox'
+
+    const img = document.createElement('img')
+    img.src = src
+
+    const closeBtn = document.createElement('button')
+    closeBtn.className = 'image-lightbox-close'
+    closeBtn.innerHTML = '×'
+    closeBtn.onclick = () => lightbox.remove()
+
+    lightbox.appendChild(img)
+    lightbox.appendChild(closeBtn)
+
+    document.body.appendChild(lightbox)
+
+    // Close on background click
+    lightbox.onclick = (e) => {
+      if (e.target === lightbox) {
+        lightbox.remove()
+      }
+    }
   }
 
   /**
@@ -92,6 +198,14 @@ export class ExpenseList {
       uncategorizedBadge.className = 'category-badge uncategorized'
       uncategorizedBadge.textContent = 'Uncategorized'
       name.appendChild(uncategorizedBadge)
+    }
+
+    // Add attachment count if has attachments
+    if (expense.attachments && expense.attachments.length > 0) {
+      const attachmentCount = document.createElement('span')
+      attachmentCount.className = 'attachment-count'
+      attachmentCount.innerHTML = `📎 ${expense.attachments.length}`
+      name.appendChild(attachmentCount)
     }
 
     const details = document.createElement('div')
@@ -159,6 +273,12 @@ export class ExpenseList {
   destroy(): void {
     if (this.unsubscribe) {
       this.unsubscribe()
+    }
+
+    // Remove lightbox if exists
+    const lightbox = document.querySelector('.image-lightbox')
+    if (lightbox) {
+      lightbox.remove()
     }
   }
 }

@@ -24,3 +24,8 @@ migrations_dir = "../d1/migrations"
 [[kv_namespaces]]
 binding = "KV"
 id = "8fe58048e60e4e20b6472c56b2247c94" # Replace with actual KV namespace ID if needed
+
+# R2 Bucket binding for file storage
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "expense-attachments"

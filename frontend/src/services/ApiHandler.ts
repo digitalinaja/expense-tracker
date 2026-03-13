@@ -297,6 +297,50 @@ export class ApiHandler {
 
     return this.handleResponse<T>(response)
   }
+
+  /**
+   * POST with FormData (for file uploads)
+   * Does NOT set Content-Type header - let browser set it with boundary
+   */
+  async postFormData<T>(endpoint: string, formData: FormData): Promise<T> {
+    const token = authService.getToken()
+    const headers: HeadersInit = {}
+
+    // Add auth header if token exists
+    if (token && !isTokenExpired(token)) {
+      headers['Authorization'] = `Bearer ${token}`
+    } else if (token && isTokenExpired(token)) {
+      const newToken = await this.attemptTokenRefresh()
+      if (newToken) {
+        headers['Authorization'] = `Bearer ${newToken}`
+      }
+    }
+
+    let response = await fetch(`${this.baseUrl}${endpoint}`, {
+      method: 'POST',
+      headers,
+      body: formData
+    })
+
+    // Retry jika token di-refresh
+    if (!response.ok && response.status === 401) {
+      try {
+        await this.handleResponse<T>(response)
+      } catch (error: any) {
+        if (error.message === 'RETRY_REQUEST') {
+          // Retry with new token
+          const newHeaders = await this.prepareRequest()
+          response = await fetch(`${this.baseUrl}${endpoint}`, {
+            method: 'POST',
+            headers: newHeaders,
+            body: formData
+          })
+        }
+      }
+    }
+
+    return this.handleResponse<T>(response)
+  }
 }
 
 // Export singleton instance

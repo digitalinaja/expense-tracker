@@ -18,8 +18,23 @@ export interface Expense {
   planning_id?: number | null
   planning_name?: string  // For display purposes from JOIN
   project_name?: string  // For display purposes from planning JOIN
+  attachments?: Attachment[]  // Associated image attachments
   created_at?: string
   updated_at?: string
+}
+
+export interface Attachment {
+  id?: number
+  expense_id: number
+  file_name: string
+  original_file_name: string
+  file_size: number
+  mime_type: string
+  r2_key: string
+  width?: number
+  height?: number
+  created_at?: string
+  url?: string  // Computed URL for accessing the file
 }
 
 export interface Planning {

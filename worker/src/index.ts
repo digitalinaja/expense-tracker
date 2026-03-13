@@ -6,6 +6,7 @@ import { reportsRouter } from './routes/reports'
 import { projectsRouter } from './routes/projects'
 import { authRouter } from './routes/auth'
 import { collaborationsRouter } from './routes/collaborations'
+import { attachmentsRouter } from './routes/attachments'
 import { errorHandler } from './middleware/error'
 import { AuthService } from './services/authService'
 import { createAuthMiddleware } from './middleware/auth'
@@ -14,6 +15,7 @@ import { createAuthMiddleware } from './middleware/auth'
 type Env = {
   DB: D1Database
   KV: KVNamespace
+  R2: R2Bucket
   ENVIRONMENT: string
   JWT_SECRET: string
   GOOGLE_CLIENT_ID: string
@@ -88,12 +90,19 @@ app.use('/api/collaborations/*', async (c, next) => {
   return middleware(c, next)
 })
 
+app.use('/api/attachments/*', async (c, next) => {
+  const authService = new AuthService(c.env.DB, c.env)
+  const middleware = createAuthMiddleware(authService)
+  return middleware(c, next)
+})
+
 // API routes
 app.route('/api/expenses', expensesRouter)
 app.route('/api/planning', planningRouter)
 app.route('/api/projects', projectsRouter)
 app.route('/api/reports', reportsRouter)
 app.route('/api/collaborations', collaborationsRouter)
+app.route('/api/attachments', attachmentsRouter)
 
 // Error handler (must be last)
 app.use('*', errorHandler)

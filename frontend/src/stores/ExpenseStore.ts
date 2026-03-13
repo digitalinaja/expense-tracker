@@ -65,21 +65,24 @@ export class ExpenseStore {
 
   /**
    * Add new expense
+   * Returns the ID of the created expense
    */
-  async add(expenseData: Omit<Expense, 'id' | 'created_at' | 'updated_at'>): Promise<void> {
+  async add(expenseData: Omit<Expense, 'id' | 'created_at' | 'updated_at'>): Promise<number> {
     this.loading = true
     this.error = null
     this.notify()
 
     try {
-      await expenseService.create(expenseData)
-      
+      const expenseId = await expenseService.create(expenseData)
+
       // Reload expenses from API instead of manual push to get planning_names
       const currentProjectId = projectStore.getCurrentProjectId()
       await this.load(currentProjectId || undefined)
-      
+
       // Reload reports so summaries update in real-time
       await reportStore.load(currentProjectId || undefined)
+
+      return expenseId
     } catch (error) {
       this.loading = false
       this.error = error instanceof Error ? error.message : 'Failed to add expense'
