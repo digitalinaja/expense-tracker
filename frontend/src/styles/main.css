@@ -2847,6 +2847,134 @@ body.loading .loading-overlay {
 }
 
 /* ============================================
+   History Toolbar (Search & Filter)
+   ============================================ */
+
+.history-toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    color: #95a5a6;
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 10px 12px 10px 36px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 14px;
+    background: white;
+    color: #2c3e50;
+    transition: all 0.3s ease;
+    margin: 0;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+    background: #fff;
+}
+
+.search-box input::placeholder {
+    color: #adb5bd;
+}
+
+/* Category Filter Chips */
+.filter-chips {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 2px 0;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.filter-chips::-webkit-scrollbar {
+    display: none;
+}
+
+.filter-chip {
+    flex-shrink: 0;
+    padding: 6px 14px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 20px;
+    background: white;
+    color: #6c757d;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    width: auto;
+}
+
+.filter-chip:hover {
+    border-color: #10b981;
+    color: #059669;
+    background: rgba(16, 185, 129, 0.05);
+    transform: none;
+    box-shadow: none;
+}
+
+.filter-chip.active {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    transform: none;
+}
+
+.result-count {
+    font-size: 12px;
+    color: #7f8c8d;
+    padding: 4px 0 8px;
+    font-weight: 500;
+}
+
+/* Scroll Loader */
+.scroll-loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px;
+    color: #7f8c8d;
+    font-size: 13px;
+}
+
+.scroll-spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid #e0e0e0;
+    border-top: 3px solid #10b981;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.scroll-sentinel {
+    height: 1px;
+    width: 100%;
+}
+
+/* ============================================
    Image Upload Styles
    ============================================ */
 

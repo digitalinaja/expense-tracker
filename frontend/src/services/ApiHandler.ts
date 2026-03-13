@@ -190,6 +190,52 @@ export class ApiHandler {
   }
 
   /**
+   * GET request that also returns pagination metadata
+   */
+  async getWithPagination<T>(endpoint: string): Promise<{ data: T; pagination: { total: number; hasMore: boolean; limit: number; offset: number } }> {
+    const headers = await this.prepareRequest()
+
+    let response = await fetch(`${this.baseUrl}${endpoint}`, {
+      method: 'GET',
+      headers
+    })
+
+    // Retry jika token di-refresh
+    if (!response.ok && response.status === 401) {
+      try {
+        await this.handleResponse<T>(response)
+      } catch (error: any) {
+        if (error.message === 'RETRY_REQUEST') {
+          const newHeaders = await this.prepareRequest()
+          response = await fetch(`${this.baseUrl}${endpoint}`, {
+            method: 'GET',
+            headers: newHeaders
+          })
+        }
+      }
+    }
+
+    // Parse full response including pagination
+    if (response.status === 401) {
+      const newToken = await this.attemptTokenRefresh()
+      if (!newToken) {
+        this.handleAuthFailure()
+        throw new Error('Session expired. Please login again.')
+      }
+    }
+
+    const result = await response.json()
+    if (!result.success) {
+      throw new Error(result.error || 'Request failed')
+    }
+
+    return {
+      data: result.data as T,
+      pagination: result.pagination || { total: 0, hasMore: false, limit: 20, offset: 0 }
+    }
+  }
+
+  /**
    * POST request
    */
   async post<T>(endpoint: string, body?: any): Promise<T> {

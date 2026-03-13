@@ -74,6 +74,75 @@ export class ExpenseQueries {
     }
   }
 
+  /**
+   * Get expenses with search, filter, and pagination
+   */
+  async getPaginated(params: {
+    projectId?: number
+    search?: string
+    planningId?: number | 'uncategorized'
+    limit: number
+    offset: number
+  }): Promise<{ data: Expense[]; total: number; hasMore: boolean }> {
+    const conditions: string[] = []
+    const values: any[] = []
+
+    // Project filter
+    if (params.projectId !== undefined) {
+      conditions.push('pl.project_id = ?')
+      values.push(params.projectId)
+    }
+
+    // Search filter (by name)
+    if (params.search && params.search.trim()) {
+      conditions.push('e.name LIKE ?')
+      values.push(`%${params.search.trim()}%`)
+    }
+
+    // Category filter
+    if (params.planningId === 'uncategorized') {
+      conditions.push('e.planning_id IS NULL')
+    } else if (params.planningId !== undefined) {
+      conditions.push('e.planning_id = ?')
+      values.push(params.planningId)
+    }
+
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : ''
+
+    // Count total matching records
+    const countQuery = `
+      SELECT COUNT(*) as total
+      FROM expenses e
+      LEFT JOIN planning p ON e.planning_id = p.id
+      LEFT JOIN planning pl ON e.planning_id = pl.id
+      ${whereClause}
+    `
+    const countResult = await this.db.prepare(countQuery).bind(...values).first()
+    const total = (countResult?.total as number) || 0
+
+    // Fetch paginated data
+    const dataQuery = `
+      SELECT
+        e.*,
+        p.name as planning_name,
+        pl.project_id
+      FROM expenses e
+      LEFT JOIN planning p ON e.planning_id = p.id
+      LEFT JOIN planning pl ON e.planning_id = pl.id
+      ${whereClause}
+      ORDER BY e.date DESC, e.created_at DESC
+      LIMIT ? OFFSET ?
+    `
+    const dataValues = [...values, params.limit, params.offset]
+    const dataResult = await this.db.prepare(dataQuery).bind(...dataValues).all()
+
+    return {
+      data: dataResult.results as Expense[],
+      total,
+      hasMore: params.offset + params.limit < total
+    }
+  }
+
   async getByPlanningId(planningId: number): Promise<Expense[]> {
     const result = await this.db
       .prepare(`
@@ -135,6 +204,9 @@ export class ExpenseQueries {
       .prepare('DELETE FROM expenses WHERE id = ?')
       .bind(id)
       .run()
+
+    // Note: Attachments will be deleted automatically due to ON DELETE CASCADE
+    // in the attachments table foreign key constraint
 
     return result.meta.changes > 0
   }

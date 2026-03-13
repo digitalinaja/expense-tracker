@@ -1,17 +1,26 @@
-import { expenseService } from '../services/ExpenseService'
+import { expenseService, type ExpenseSearchParams } from '../services/ExpenseService'
 import type { Expense } from '../types'
 import { reportStore } from './ReportStore'
 import { projectStore } from './ProjectStore'
 
+const PAGE_SIZE = 20
+
 /**
  * Simple reactive store for expenses
  * Uses Observer pattern for state management
+ * Supports paginated loading with search and filter
  */
 export class ExpenseStore {
   private expenses: Expense[] = []
   private listeners: Array<(expenses: Expense[]) => void> = []
   private loading: boolean = false
+  private loadingMore: boolean = false
   private error: string | null = null
+  private hasMore: boolean = false
+  private total: number = 0
+  private currentOffset: number = 0
+  private searchQuery: string = ''
+  private filterPlanningId: number | 'uncategorized' | undefined = undefined
 
   /**
    * Subscribe to state changes
@@ -34,16 +43,30 @@ export class ExpenseStore {
   /**
    * Get current state
    */
-  getState(): { expenses: Expense[]; loading: boolean; error: string | null } {
+  getState(): {
+    expenses: Expense[]
+    loading: boolean
+    loadingMore: boolean
+    error: string | null
+    hasMore: boolean
+    total: number
+    searchQuery: string
+    filterPlanningId: number | 'uncategorized' | undefined
+  } {
     return {
       expenses: this.expenses,
       loading: this.loading,
-      error: this.error
+      loadingMore: this.loadingMore,
+      error: this.error,
+      hasMore: this.hasMore,
+      total: this.total,
+      searchQuery: this.searchQuery,
+      filterPlanningId: this.filterPlanningId
     }
   }
 
   /**
-   * Load all expenses from API
+   * Load all expenses from API (legacy, used by summary/reports)
    * Can optionally filter by project_id
    */
   async load(projectId?: number): Promise<void> {
@@ -53,11 +76,82 @@ export class ExpenseStore {
 
     try {
       this.expenses = await expenseService.getAll(projectId)
+      this.total = this.expenses.length
+      this.hasMore = false
+      this.currentOffset = this.expenses.length
       this.loading = false
       this.notify()
     } catch (error) {
       this.loading = false
       this.error = error instanceof Error ? error.message : 'Failed to load expenses'
+      this.notify()
+      throw error
+    }
+  }
+
+  /**
+   * Load first page with search/filter (resets list)
+   */
+  async loadPage(search?: string, planningId?: number | 'uncategorized'): Promise<void> {
+    this.searchQuery = search || ''
+    this.filterPlanningId = planningId
+    this.currentOffset = 0
+    this.loading = true
+    this.error = null
+    this.notify()
+
+    try {
+      const params: ExpenseSearchParams = {
+        projectId: projectStore.getCurrentProjectId() || undefined,
+        search: this.searchQuery || undefined,
+        planningId: this.filterPlanningId,
+        limit: PAGE_SIZE,
+        offset: 0
+      }
+
+      const result = await expenseService.search(params)
+      this.expenses = result.data
+      this.total = result.pagination.total
+      this.hasMore = result.pagination.hasMore
+      this.currentOffset = PAGE_SIZE
+      this.loading = false
+      this.notify()
+    } catch (error) {
+      this.loading = false
+      this.error = error instanceof Error ? error.message : 'Failed to search expenses'
+      this.notify()
+      throw error
+    }
+  }
+
+  /**
+   * Load next page (append to existing list)
+   */
+  async loadMore(): Promise<void> {
+    if (!this.hasMore || this.loadingMore) return
+
+    this.loadingMore = true
+    this.notify()
+
+    try {
+      const params: ExpenseSearchParams = {
+        projectId: projectStore.getCurrentProjectId() || undefined,
+        search: this.searchQuery || undefined,
+        planningId: this.filterPlanningId,
+        limit: PAGE_SIZE,
+        offset: this.currentOffset
+      }
+
+      const result = await expenseService.search(params)
+      this.expenses = [...this.expenses, ...result.data]
+      this.total = result.pagination.total
+      this.hasMore = result.pagination.hasMore
+      this.currentOffset += PAGE_SIZE
+      this.loadingMore = false
+      this.notify()
+    } catch (error) {
+      this.loadingMore = false
+      this.error = error instanceof Error ? error.message : 'Failed to load more expenses'
       this.notify()
       throw error
     }
@@ -102,6 +196,7 @@ export class ExpenseStore {
     try {
       await expenseService.delete(id)
       this.expenses = this.expenses.filter(e => e.id !== id)
+      this.total = Math.max(0, this.total - 1)
       this.loading = false
       this.notify()
     } catch (error) {
@@ -149,6 +244,11 @@ export class ExpenseStore {
   clear(): void {
     this.expenses = []
     this.error = null
+    this.hasMore = false
+    this.total = 0
+    this.currentOffset = 0
+    this.searchQuery = ''
+    this.filterPlanningId = undefined
     this.notify()
   }
 }
