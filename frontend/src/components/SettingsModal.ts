@@ -1,5 +1,6 @@
 import { pwaService } from '../services/PwaService'
 import { authStore } from '../stores/AuthStore'
+import { APP_VERSION } from '../config/version'
 
 /**
  * SettingsModal Component
@@ -151,7 +152,7 @@ export class SettingsModal {
             <div class="setting-item">
               <div class="setting-info">
                 <div class="setting-title">Versi Aplikasi</div>
-                <div class="setting-description">v1.0.0</div>
+                <div class="setting-description">${APP_VERSION}</div>
               </div>
             </div>
 
