@@ -1,6 +1,6 @@
 // IMPORTANT: Keep this in sync with APP_VERSION in /src/config/version.ts
-// Current version: v2.1.1
-const CACHE_NAME = 'catat-uang-v2.1.1';
+// Current version: v2.1.3
+const CACHE_NAME = 'catat-uang-v2.1.3';
 const urlsToCache = [
   '/',
   '/index.html',

@@ -1,17 +1,19 @@
 import { formatCurrency } from '../utils/formatters'
-import { expenseStore } from '../stores/ExpenseStore'
-import { planningStore } from '../stores/PlanningStore'
+import { projectStore } from '../stores/ProjectStore'
+import { reportStore } from '../stores/ReportStore'
 
 /**
  * Summary Component
  * Displays total expenses, planning, and remaining balance
+ * Uses accurate data from database via ProjectStore
  */
 export class Summary {
   private totalExpenseElement: HTMLElement
   private totalPlanningElement: HTMLElement
   private remainingBalanceElement: HTMLElement
-  private unsubscribeExpenses: (() => void) | null = null
-  private unsubscribePlanning: (() => void) | null = null
+  private unsubscribeProject: (() => void) | null = null
+  private unsubscribeReport: (() => void) | null = null
+  private loading: boolean = false
 
   constructor() {
     this.totalExpenseElement = document.getElementById('totalExpense') as HTMLElement
@@ -23,28 +25,54 @@ export class Summary {
    * Initialize component and subscribe to store updates
    */
   init(): void {
-    // Subscribe to expense store changes
-    this.unsubscribeExpenses = expenseStore.subscribe(() => {
-      this.updateSummary()
+    // Subscribe to project store changes (for project summary)
+    this.unsubscribeProject = projectStore.subscribe(async () => {
+      await this.refreshSummary()
     })
 
-    // Subscribe to planning store changes
-    this.unsubscribePlanning = planningStore.subscribe(() => {
-      this.updateSummary()
+    // Subscribe to report store changes (for realtime updates when expenses change)
+    this.unsubscribeReport = reportStore.subscribe(async () => {
+      await this.refreshSummary()
     })
 
-    // Initial update
-    this.updateSummary()
+    // Initial load
+    this.refreshSummary()
   }
 
   /**
-   * Update summary display
+   * Refresh summary from database
    */
-  private updateSummary(): void {
-    const totalExpenses = expenseStore.getTotal()
-    const totalPlanning = planningStore.getTotal()
-    const remainingBalance = totalPlanning - totalExpenses
+  private async refreshSummary(): Promise<void> {
+    if (this.loading) return // Prevent concurrent refreshes
 
+    const currentProjectId = projectStore.getCurrentProjectId()
+    if (!currentProjectId) {
+      // No project selected, show zeros
+      this.updateDisplay(0, 0, 0)
+      return
+    }
+
+    this.loading = true
+
+    try {
+      // Refresh summary from database
+      await projectStore.setCurrentProject(currentProjectId)
+
+      const summary = projectStore.getCurrentProjectSummary()
+      if (summary) {
+        this.updateDisplay(summary.total_expenses, summary.total_planning, summary.remaining)
+      }
+    } catch (error) {
+      console.error('Failed to refresh summary:', error)
+    } finally {
+      this.loading = false
+    }
+  }
+
+  /**
+   * Update display with values
+   */
+  private updateDisplay(totalExpenses: number, totalPlanning: number, remainingBalance: number): void {
     // Update DOM elements
     this.totalExpenseElement.textContent = formatCurrency(totalExpenses)
     this.totalPlanningElement.textContent = formatCurrency(totalPlanning)
@@ -64,11 +92,11 @@ export class Summary {
    * Cleanup and unsubscribe
    */
   destroy(): void {
-    if (this.unsubscribeExpenses) {
-      this.unsubscribeExpenses()
+    if (this.unsubscribeProject) {
+      this.unsubscribeProject()
     }
-    if (this.unsubscribePlanning) {
-      this.unsubscribePlanning()
+    if (this.unsubscribeReport) {
+      this.unsubscribeReport()
     }
   }
 }

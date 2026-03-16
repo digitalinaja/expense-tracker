@@ -1,5 +1,6 @@
 import { planningService } from '../services/PlanningService'
 import type { Planning } from '../types'
+import { projectStore } from './ProjectStore'
 
 /**
  * Simple reactive store for planning
@@ -79,6 +80,9 @@ export class PlanningStore {
       this.planning.unshift(newPlanning)
       this.loading = false
       this.notify()
+
+      // Refresh project summary to update accurate totals
+      await projectStore.refreshSummary()
     } catch (error) {
       this.loading = false
       this.error = error instanceof Error ? error.message : 'Failed to add planning item'
@@ -100,6 +104,9 @@ export class PlanningStore {
       this.planning = this.planning.filter(p => p.id !== id)
       this.loading = false
       this.notify()
+
+      // Refresh project summary to update accurate totals
+      await projectStore.refreshSummary()
     } catch (error) {
       this.loading = false
       this.error = error instanceof Error ? error.message : 'Failed to delete planning item'
@@ -124,6 +131,9 @@ export class PlanningStore {
       }
       this.loading = false
       this.notify()
+
+      // Refresh project summary to update accurate totals
+      await projectStore.refreshSummary()
     } catch (error) {
       this.loading = false
       this.error = error instanceof Error ? error.message : 'Failed to update planning item'

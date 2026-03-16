@@ -116,6 +116,15 @@ export class ExpenseStore {
       this.currentOffset = PAGE_SIZE
       this.loading = false
       this.notify()
+
+      // Also refresh report and summary when loading page
+      // This ensures reports stay in sync with expense changes
+      const currentProjectId = projectStore.getCurrentProjectId()
+      if (currentProjectId) {
+        // Await both to ensure they complete before returning
+        await reportStore.load(currentProjectId)
+        await projectStore.refreshSummary()
+      }
     } catch (error) {
       this.loading = false
       this.error = error instanceof Error ? error.message : 'Failed to search expenses'
@@ -177,6 +186,9 @@ export class ExpenseStore {
 
         // Reload reports so summaries update in real-time
         await reportStore.load(currentProjectId || undefined)
+
+        // Refresh project summary to update accurate totals
+        await projectStore.refreshSummary()
       } else {
         this.loading = false
         this.notify()
@@ -205,6 +217,13 @@ export class ExpenseStore {
       this.total = Math.max(0, this.total - 1)
       this.loading = false
       this.notify()
+
+      // Refresh project summary to update accurate totals
+      await projectStore.refreshSummary()
+
+      // Reload reports to update category reports
+      const currentProjectId = projectStore.getCurrentProjectId()
+      await reportStore.load(currentProjectId || undefined)
     } catch (error) {
       this.loading = false
       this.error = error instanceof Error ? error.message : 'Failed to delete expense'
@@ -229,6 +248,13 @@ export class ExpenseStore {
       }
       this.loading = false
       this.notify()
+
+      // Refresh project summary to update accurate totals
+      await projectStore.refreshSummary()
+
+      // Reload reports to update category reports
+      const currentProjectId = projectStore.getCurrentProjectId()
+      await reportStore.load(currentProjectId || undefined)
     } catch (error) {
       this.loading = false
       this.error = error instanceof Error ? error.message : 'Failed to update expense'

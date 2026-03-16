@@ -171,6 +171,22 @@ export class ProjectStore {
   }
 
   /**
+   * Refresh current project summary from API
+   * Call this when expenses or planning change
+   */
+  async refreshSummary(): Promise<void> {
+    if (!this.currentProjectId) return
+
+    try {
+      this.currentProjectSummary = await projectService.getSummary(this.currentProjectId)
+      this.notify()
+    } catch (error) {
+      console.error('Failed to refresh project summary:', error)
+      throw error
+    }
+  }
+
+  /**
    * Add new project
    */
   async add(projectData: Omit<Project, 'id' | 'created_at' | 'updated_at'>): Promise<void> {

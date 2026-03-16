@@ -25,7 +25,7 @@
  * - minor: New features (backward compatible)
  * - patch: Bug fixes (no breaking changes)
  */
-export const APP_VERSION = 'v2.1.1'
+export const APP_VERSION = 'v2.1.3'
 
 /**
  * Cache name for service worker
