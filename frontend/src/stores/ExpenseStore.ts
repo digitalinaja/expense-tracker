@@ -160,8 +160,9 @@ export class ExpenseStore {
   /**
    * Add new expense
    * Returns the ID of the created expense
+   * @param shouldReload - Whether to reload expenses after creating (default: true)
    */
-  async add(expenseData: Omit<Expense, 'id' | 'created_at' | 'updated_at'>): Promise<number> {
+  async add(expenseData: Omit<Expense, 'id' | 'created_at' | 'updated_at'>, shouldReload: boolean = true): Promise<number> {
     this.loading = true
     this.error = null
     this.notify()
@@ -169,12 +170,17 @@ export class ExpenseStore {
     try {
       const expenseId = await expenseService.create(expenseData)
 
-      // Reload expenses from API instead of manual push to get planning_names
-      const currentProjectId = projectStore.getCurrentProjectId()
-      await this.load(currentProjectId || undefined)
+      if (shouldReload) {
+        // Reload expenses from API using pagination to maintain consistency
+        const currentProjectId = projectStore.getCurrentProjectId()
+        await this.loadPage(this.searchQuery, this.filterPlanningId)
 
-      // Reload reports so summaries update in real-time
-      await reportStore.load(currentProjectId || undefined)
+        // Reload reports so summaries update in real-time
+        await reportStore.load(currentProjectId || undefined)
+      } else {
+        this.loading = false
+        this.notify()
+      }
 
       return expenseId
     } catch (error) {

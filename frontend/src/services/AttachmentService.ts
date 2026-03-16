@@ -1,7 +1,5 @@
 import type { Attachment } from '../types'
 import { apiHandler } from './ApiHandler'
-import { authService } from './AuthService'
-import { isTokenExpired } from '../utils/jwt'
 
 /**
  * Service for managing attachments via API
@@ -52,33 +50,19 @@ export class AttachmentService {
    * Get attachment file URL (plain URL without auth)
    */
   getFileUrl(id: number): string {
-    return `/api/attachments/${id}/file`
+    return `${apiHandler.getBaseUrl()}/attachments/${id}/file`
   }
 
   /**
-   * Fetch attachment file as blob URL with proper auth headers.
-   * <img src> tags cannot send Authorization headers, so we fetch
-   * the file via fetch() and convert to a blob URL.
+   * Fetch attachment file as blob URL with proper auth headers
+   * Using ApiHandler to automatically handle tokens
    */
   async getFileBlobUrl(id: number): Promise<string> {
     // Return cached URL if available
     const cached = this.blobUrlCache.get(id)
     if (cached) return cached
 
-    const token = authService.getToken()
-    const headers: HeadersInit = {}
-
-    if (token && !isTokenExpired(token)) {
-      headers['Authorization'] = `Bearer ${token}`
-    }
-
-    const response = await fetch(this.getFileUrl(id), { headers })
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch attachment file: ${response.status}`)
-    }
-
-    const blob = await response.blob()
+    const blob = await apiHandler.getBlob(`/attachments/${id}/file`)
     const blobUrl = URL.createObjectURL(blob)
     this.blobUrlCache.set(id, blobUrl)
     return blobUrl

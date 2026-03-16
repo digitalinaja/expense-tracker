@@ -18,7 +18,8 @@ export interface Expense {
   planning_id?: number | null
   planning_name?: string  // For display purposes from JOIN
   project_name?: string  // For display purposes from planning JOIN
-  attachments?: Attachment[]  // Associated image attachments
+  attachments_count?: number  // Number of attachments (from subquery)
+  attachments?: Attachment[]  // Associated image attachments (when loaded separately)
   created_at?: string
   updated_at?: string
 }

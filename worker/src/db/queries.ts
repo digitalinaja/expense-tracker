@@ -6,6 +6,7 @@ export interface Expense {
   date: string
   planning_id?: number | null
   planning_name?: string  // For display purposes from JOIN
+  attachments_count?: number  // Number of attachments for this expense
   created_at?: string
   updated_at?: string
 }
@@ -50,7 +51,8 @@ export class ExpenseQueries {
       SELECT
         e.*,
         p.name as planning_name,
-        pl.project_id
+        pl.project_id,
+        (SELECT COUNT(*) FROM attachments a WHERE a.expense_id = e.id) as attachments_count
       FROM expenses e
       LEFT JOIN planning p ON e.planning_id = p.id
       LEFT JOIN planning pl ON e.planning_id = pl.id
@@ -125,7 +127,8 @@ export class ExpenseQueries {
       SELECT
         e.*,
         p.name as planning_name,
-        pl.project_id
+        pl.project_id,
+        (SELECT COUNT(*) FROM attachments a WHERE a.expense_id = e.id) as attachments_count
       FROM expenses e
       LEFT JOIN planning p ON e.planning_id = p.id
       LEFT JOIN planning pl ON e.planning_id = pl.id
@@ -148,7 +151,8 @@ export class ExpenseQueries {
       .prepare(`
         SELECT
           e.*,
-          p.name as planning_name
+          p.name as planning_name,
+          (SELECT COUNT(*) FROM attachments a WHERE a.expense_id = e.id) as attachments_count
         FROM expenses e
         LEFT JOIN planning p ON e.planning_id = p.id
         WHERE e.planning_id = ?
@@ -162,10 +166,12 @@ export class ExpenseQueries {
   async getUncategorized(): Promise<Expense[]> {
     const result = await this.db
       .prepare(`
-        SELECT *
-        FROM expenses
-        WHERE planning_id IS NULL
-        ORDER BY date DESC, created_at DESC
+        SELECT
+          e.*,
+          (SELECT COUNT(*) FROM attachments a WHERE a.expense_id = e.id) as attachments_count
+        FROM expenses e
+        WHERE e.planning_id IS NULL
+        ORDER BY e.date DESC, e.created_at DESC
       `)
       .all()
     return result.results as Expense[]
@@ -176,7 +182,8 @@ export class ExpenseQueries {
       .prepare(`
         SELECT
           e.*,
-          p.name as planning_name
+          p.name as planning_name,
+          (SELECT COUNT(*) FROM attachments a WHERE a.expense_id = e.id) as attachments_count
         FROM expenses e
         LEFT JOIN planning p ON e.planning_id = p.id
         WHERE e.id = ?

@@ -309,6 +309,9 @@ export class ExpenseList {
         const listItem = this.createExpenseItem(expense)
         this.listElement.appendChild(listItem)
       })
+
+      // Load attachments for all expenses (force reload to ensure fresh data)
+      this.loadAttachments(expenses, true)
     } else {
       // Append only new items (loadMore case)
       // The new items are at the end of the array
@@ -318,27 +321,41 @@ export class ExpenseList {
         const listItem = this.createExpenseItem(expense)
         this.listElement.appendChild(listItem)
       })
-    }
 
-    // Load attachments for displayed expenses
-    this.loadAttachments(expenses)
+      // Load attachments only for new items (no force reload needed)
+      this.loadAttachments(newExpenses, false)
+    }
   }
 
   /**
    * Load attachments for expenses
    */
-  private async loadAttachments(expenses: Expense[]): Promise<void> {
+  private async loadAttachments(expenses: Expense[], forceReload: boolean = false): Promise<void> {
     for (const expense of expenses) {
-      if (expense.id && !this.expenseAttachments.has(expense.id)) {
-        try {
-          const attachments = await attachmentService.getByExpenseId(expense.id)
-          this.expenseAttachments.set(expense.id, attachments)
+      // Skip if no ID
+      if (!expense.id) continue
 
-          // Update the expense item with attachment thumbnails
-          this.updateExpenseAttachments(expense.id, attachments)
-        } catch (error) {
-          console.error('Failed to load attachments:', error)
-        }
+      // Skip if already cached and not forcing reload
+      if (!forceReload && this.expenseAttachments.has(expense.id)) {
+        continue
+      }
+
+      try {
+        const attachments = await attachmentService.getByExpenseId(expense.id)
+        this.expenseAttachments.set(expense.id, attachments)
+
+        // Update the expense item with attachment thumbnails
+        this.updateExpenseAttachments(expense.id, attachments)
+      } catch (error) {
+        // Log error with more context
+        const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+        console.error(`Failed to load attachments for expense ${expense.id}:`, errorMsg)
+
+        // Mark as empty to prevent repeated failed attempts
+        this.expenseAttachments.set(expense.id, [])
+
+        // Optionally show error indicator in UI (commented out by default)
+        // this.showAttachmentErrorIndicator(expense.id)
       }
     }
   }
@@ -373,8 +390,17 @@ export class ExpenseList {
       attachmentService.getFileBlobUrl(attachment.id!).then(blobUrl => {
         img.src = blobUrl
       }).catch(err => {
-        console.error('Failed to load attachment image:', err)
-        img.alt = '❌ ' + attachment.original_file_name
+        const errorMsg = err instanceof Error ? err.message : 'Unknown error'
+        console.error(`Failed to load attachment image ${attachment.id}:`, errorMsg)
+
+        // Show error placeholder
+        img.alt = `❌ ${attachment.original_file_name}`
+        img.style.opacity = '0.5'
+        thumbnail.title = `Gagal memuat: ${attachment.original_file_name}\n${errorMsg}`
+        thumbnail.style.cursor = 'not-allowed'
+
+        // Remove click handler on error
+        img.onclick = null
       })
 
       img.onclick = () => {
@@ -486,14 +512,6 @@ export class ExpenseList {
       uncategorizedBadge.className = 'category-badge uncategorized'
       uncategorizedBadge.textContent = 'Uncategorized'
       name.appendChild(uncategorizedBadge)
-    }
-
-    // Add attachment count if has attachments
-    if (expense.attachments && expense.attachments.length > 0) {
-      const attachmentCount = document.createElement('span')
-      attachmentCount.className = 'attachment-count'
-      attachmentCount.innerHTML = `📎 ${expense.attachments.length}`
-      name.appendChild(attachmentCount)
     }
 
     const details = document.createElement('div')

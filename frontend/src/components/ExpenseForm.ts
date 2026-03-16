@@ -229,19 +229,22 @@ export class ExpenseForm {
     this.setLoading(true, 'Menambahkan pengeluaran...')
 
     try {
-      // Add expense through store dengan planning_id
+      // Add expense through store dengan planning_id (don't reload yet - wait for uploads)
       const expenseId = await expenseStore.add({
         name,
         amount,
         date,
         planning_id
-      })
+      }, false) // ← Don't reload yet, wait for uploads to complete
 
       // Upload images if any
       if (this.pendingUploads.length > 0) {
         this.setLoading(true, `Mengupload ${this.pendingUploads.length} gambar...`)
         await this.uploadImages(expenseId)
       }
+
+      // NOW reload the data after everything is complete
+      await expenseStore.loadPage()
 
       // Reset form (but keep date)
       const currentDate = this.dateInput.value

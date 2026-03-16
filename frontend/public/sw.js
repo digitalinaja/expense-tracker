@@ -1,4 +1,4 @@
-const CACHE_NAME = 'catat-uang-v1.3';
+const CACHE_NAME = 'catat-uang-v2.0';
 const urlsToCache = [
   '/',
   '/index.html',

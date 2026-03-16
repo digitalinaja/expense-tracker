@@ -236,6 +236,46 @@ export class ApiHandler {
   }
 
   /**
+   * GET request that returns a Blob (for files/images)
+   */
+  async getBlob(endpoint: string): Promise<Blob> {
+    const headers = await this.prepareRequest()
+
+    let response = await fetch(`${this.baseUrl}${endpoint}`, {
+      method: 'GET',
+      headers
+    })
+
+    // Retry jika token di-refresh
+    if (!response.ok && response.status === 401) {
+      const newToken = await this.attemptTokenRefresh()
+      if (newToken) {
+        const newHeaders = await this.prepareRequest()
+        response = await fetch(`${this.baseUrl}${endpoint}`, {
+          method: 'GET',
+          headers: newHeaders
+        })
+      } else {
+        this.handleAuthFailure()
+        throw new Error('Session expired. Please login again.')
+      }
+    }
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch blob: ${response.status} ${response.statusText}`)
+    }
+
+    return response.blob()
+  }
+
+  /**
+   * Get the configured base URL
+   */
+  getBaseUrl(): string {
+    return this.baseUrl
+  }
+
+  /**
    * POST request
    */
   async post<T>(endpoint: string, body?: any): Promise<T> {
